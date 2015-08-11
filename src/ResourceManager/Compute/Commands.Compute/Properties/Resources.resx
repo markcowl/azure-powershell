@@ -281,4 +281,12 @@ The file needs to be a PowerShell script (.ps1 or .psm1).</value>
   <data name="DscExtensionRemovalConfirmation" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="PublishVMDscExtensionDirectoryNotExist" xml:space="preserve">
+    <value>Path '{0}' not found.</value>
+    <comment>0 = path to the additional content file/directory</comment>
+  </data>
+  <data name="PublishVMDscExtensionAdditionalContentPathNotExist" xml:space="preserve">
+    <value>Path '{0}' not found.</value>
+    <comment>0 = path to the additional content file/directory</comment>
+  </data>
 </root>
