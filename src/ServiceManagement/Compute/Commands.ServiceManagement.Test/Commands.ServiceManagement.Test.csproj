@@ -151,7 +151,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Services.Client" />
-    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Compression.FileSystem">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.IO.Compression.FileSystem.dll</HintPath>
+    </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Net" />
@@ -454,6 +456,54 @@
     <None Include="AzureRTComplete_Full_Diff.playlist" />
     <None Include="AzureRTExtensions.playlist" />
     <None Include="AzureRTFull.playlist" />
+    <None Include="Resources\DSC\Configurations\CorporateClientConfiguration.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\DomainControllerConfiguration.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\ModuleImportListInsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\ModuleImportListOutsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\ModuleImportSingleInsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\ModuleImportSingleOutsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\NameImportListInsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\NameImportListOutsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\NameImportSingleInsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\NameImportSingleOutsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\Dummy\NameModuleImportSingleInsideNode.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\IEEScBad.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\IEEScGood.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\SHMulptiConfigurations.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\DSC\Configurations\VisualStudio.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Resources\DSC\DSC Resource Kit Wave 6 08282014.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\HelloWorld_SDK20.cspkg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
