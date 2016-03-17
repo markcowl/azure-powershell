@@ -2141,6 +2141,15 @@ namespace Microsoft.WindowsAzure.Commands.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; is deprecated and will be removed ina future release.  Please remove this parameter from your scripts..
+        /// </summary>
+        public static string ParameterDeprecationWarning {
+            get {
+                return ResourceManager.GetString("ParameterDeprecationWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A value for the  Peer Asn has to be provided..
         /// </summary>
         public static string PeerAsnRequired {
