@@ -27,9 +27,13 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
         public abstract string ActionWarning { get; }
 
         public abstract string ActionDescription { get; }
+        [Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
+        public SwitchParameter Force { get; set; }
+
 
         public override void ExecuteApiManagementCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             if (ShouldProcess(
                     ActionDescription,
                     ActionWarning,

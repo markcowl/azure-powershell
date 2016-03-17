@@ -16,9 +16,9 @@ namespace Microsoft.Azure.Commands.ApiManagement.Commands
 {
     using System.Globalization;
     using System.Management.Automation;
-    using Microsoft.Azure.Commands.ApiManagement.Properties;
+    using Properties;
 
-    [Cmdlet(VerbsCommon.Remove, "AzureRmApiManagement", SupportsShouldProcess=true), OutputType(typeof (bool))]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmApiManagement", SupportsShouldProcess = true), OutputType(typeof(bool))]
     public class RemoveAzureApiManagement : AzureApiManagementCmdletBase
     {
         [Parameter(
@@ -35,11 +35,15 @@ namespace Microsoft.Azure.Commands.ApiManagement.Commands
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
+        [Parameter(Mandatory = false, HelpMessage = "Delete the ApiManagement service under any circumstances, skipping all prompts")]
+        public SwitchParameter Force { get; set; }
+
         [Parameter(Mandatory = false)]
         public SwitchParameter PassThru { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             var actionDescription = string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.RemoveAzureApiManagementDescription,
@@ -56,18 +60,20 @@ namespace Microsoft.Azure.Commands.ApiManagement.Commands
                     actionWarning,
                     Resources.ShouldProcessCaption))
             {
-                ExecuteCmdLetWrap(
-                    () => Client.DeleteApiManagement(ResourceGroupName, Name),
-                    PassThru.IsPresent);
-            }
-            else
-            {
-                if (PassThru.IsPresent)
+                if (Force || ShouldContinue(actionWarning, Resources.RemoveShouldContinueCaption))
                 {
-                    WriteObject(false);
+                    ExecuteCmdLetWrap(
+                        () => Client.DeleteApiManagement(ResourceGroupName, Name),
+                        PassThru.IsPresent);
+                }
+                else
+                {
+                    if (PassThru.IsPresent)
+                    {
+                        WriteObject(false);
+                    }
                 }
             }
-
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
     using Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Models;
     using Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties;
 
-    [Cmdlet(VerbsCommon.Remove, "AzureRmApiManagementAuthorizationServer", SupportsShouldProcess=true, ConfirmImpact=ConfirmImpact.High)]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmApiManagementAuthorizationServer", SupportsShouldProcess=true)]
     [OutputType(typeof(bool))]
     public class RemoveAzureApiManagementAuthorizationServer : AzureApiManagementRemoveCmdletBase
     {
@@ -41,7 +41,7 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
         {
             get { return string.Format(CultureInfo.CurrentCulture, Resources.GroupRemoveDescription, ServerId); }
         }
-      
+
         protected override void ExecuteRemoveLogic()
         {
             Client.AuthorizationServerRemove(Context, ServerId);

@@ -137,6 +137,9 @@
     <value>Removing master region in location '{0}' is not allowed.</value>
     <comment>Process workflow</comment>
   </data>
+  <data name="RemoveShouldContinueCaption" xml:space="preserve">
+    <value>Remove API Management Service</value>
+  </data>
   <data name="ShouldProcessCaption" xml:space="preserve">
     <value>Confirm</value>
     <comment>Process workflow</comment>

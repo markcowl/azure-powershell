@@ -125,6 +125,9 @@
     <value>File "{0}" already exists. Override?</value>
     <comment>Process workflow</comment>
   </data>
+  <data name="ApiPolicyTarget" xml:space="preserve">
+    <value>Policy for Resource Group: '{0}', Service: '{1}', Api: '{2}'</value>
+  </data>
   <data name="ApiRemoveDescription" xml:space="preserve">
     <value>Removing API "{0}".</value>
     <comment>Process workflow</comment>
@@ -149,6 +152,9 @@
     <value>Are you sure you want to remove Certificate "{0}"?</value>
     <comment>Process workflow</comment>
   </data>
+  <data name="DownloadPolicyDescription" xml:space="preserve">
+    <value>Download</value>
+  </data>
   <data name="FileOverwriteCaption" xml:space="preserve">
     <value>File Overwrite Warning</value>
     <comment>Process workflow</comment>
@@ -165,6 +171,9 @@
     <value>Are you sure you want to remove Group "{0}"?</value>
     <comment>Process workflow</comment>
   </data>
+  <data name="OperationPolicyTarget" xml:space="preserve">
+    <value>Policy for Resource Group: '{0}', Service: '{1}', Api: '{2}', Operation: '{3}'</value>
+  </data>
   <data name="OperationRemoveDescription" xml:space="preserve">
     <value>Removing Operation "{0}" of API "{1}".</value>
     <comment>Process workflow</comment>
@@ -180,6 +189,9 @@
   <data name="PolicyRemoveWarning" xml:space="preserve">
     <value>Are you sure you want to remove "{0}" policy?</value>
     <comment>Process workflow</comment>
+  </data>
+  <data name="ProductPolicyTarget" xml:space="preserve">
+    <value>Policy for Resource Group: '{0}', Service: '{1}', Product: '{2}'</value>
   </data>
   <data name="ProductRemoveDescription" xml:space="preserve">
     <value>Removing Product "{0}".</value>
@@ -208,6 +220,9 @@
   <data name="SubscriptionRemoveWarning" xml:space="preserve">
     <value>Are you sure you want to remove Subscription "{0}"?</value>
     <comment>Process workflow</comment>
+  </data>
+  <data name="TenantPolicyTarget" xml:space="preserve">
+    <value>Policy for Resource Group: '{0}', Service: '{1}'</value>
   </data>
   <data name="UserRemoveDescription" xml:space="preserve">
     <value>Removing User "{0}".</value>

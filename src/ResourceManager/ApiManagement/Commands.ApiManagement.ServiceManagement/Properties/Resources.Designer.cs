@@ -79,6 +79,15 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Policy for Resource Group: &apos;{0}&apos;, Service: &apos;{1}&apos;, Api: &apos;{2}&apos;.
+        /// </summary>
+        internal static string ApiPolicyTarget {
+            get {
+                return ResourceManager.GetString("ApiPolicyTarget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Removing API &quot;{0}&quot;..
         /// </summary>
         internal static string ApiRemoveDescription {
@@ -133,6 +142,15 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        internal static string DownloadPolicyDescription {
+            get {
+                return ResourceManager.GetString("DownloadPolicyDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File Overwrite Warning.
         /// </summary>
         internal static string FileOverwriteCaption {
@@ -169,6 +187,15 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Policy for Resource Group: &apos;{0}&apos;, Service: &apos;{1}&apos;, Api: &apos;{2}&apos;, Operation: &apos;{3}&apos;.
+        /// </summary>
+        internal static string OperationPolicyTarget {
+            get {
+                return ResourceManager.GetString("OperationPolicyTarget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Removing Operation &quot;{0}&quot; of API &quot;{1}&quot;..
         /// </summary>
         internal static string OperationRemoveDescription {
@@ -201,6 +228,15 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties {
         internal static string PolicyRemoveWarning {
             get {
                 return ResourceManager.GetString("PolicyRemoveWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Policy for Resource Group: &apos;{0}&apos;, Service: &apos;{1}&apos;, Product: &apos;{2}&apos;.
+        /// </summary>
+        internal static string ProductPolicyTarget {
+            get {
+                return ResourceManager.GetString("ProductPolicyTarget", resourceCulture);
             }
         }
         
@@ -264,6 +300,15 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties {
         internal static string SubscriptionRemoveWarning {
             get {
                 return ResourceManager.GetString("SubscriptionRemoveWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Policy for Resource Group: &apos;{0}&apos;, Service: &apos;{1}&apos;.
+        /// </summary>
+        internal static string TenantPolicyTarget {
+            get {
+                return ResourceManager.GetString("TenantPolicyTarget", resourceCulture);
             }
         }
         

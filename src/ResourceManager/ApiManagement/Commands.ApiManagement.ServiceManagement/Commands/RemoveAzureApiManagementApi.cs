@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
     using Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Models;
     using Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties;
 
-    [Cmdlet(VerbsCommon.Remove, "AzureRmApiManagementApi", SupportsShouldProcess=true, ConfirmImpact=ConfirmImpact.High)]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmApiManagementApi", SupportsShouldProcess=true)]
     [OutputType(typeof(bool))]
     public class RemoveAzureApiManagementApi : AzureApiManagementCmdletBase
     {
@@ -38,6 +38,9 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
         [ValidateNotNullOrEmpty]
         public String ApiId { get; set; }
 
+        [Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
+        public SwitchParameter Force { get; set; }
+
         [Parameter(
             ValueFromPipelineByPropertyName = true,
             Mandatory = false,
@@ -46,6 +49,7 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
 
         public override void ExecuteApiManagementCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             var actionDescription = string.Format(CultureInfo.CurrentCulture, Resources.ApiRemoveDescription, ApiId);
             var actionWarning = string.Format(CultureInfo.CurrentCulture, Resources.ApiRemoveWarning, ApiId);
 

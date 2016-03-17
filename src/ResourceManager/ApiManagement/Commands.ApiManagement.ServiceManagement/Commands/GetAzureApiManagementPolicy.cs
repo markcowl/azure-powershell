@@ -22,7 +22,8 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
     using Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Models;
     using Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Properties;
 
-    [Cmdlet(VerbsCommon.Get, "AzureRmApiManagementPolicy", DefaultParameterSetName = TenantLevel)]
+    [Cmdlet(VerbsCommon.Get, "AzureRmApiManagementPolicy", DefaultParameterSetName = TenantLevel, 
+        SupportsShouldProcess = true)]
     [OutputType(typeof(string))]
     public class GetAzureApiManagementPolicy : AzureApiManagementCmdletBase
     {
@@ -86,24 +87,33 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
         public override void ExecuteApiManagementCmdlet()
         {
             string format = Format ?? DefaultFormat;
+            string  policyTarget = null;
             byte[] content;
             switch (ParameterSetName)
             {
                 case TenantLevel:
                     content = Client.PolicyGetTenantLevel(Context, format);
+                    policyTarget = string.Format(Resources.TenantPolicyTarget,
+                        Context.ResourceGroupName, Context.ServiceName);
                     break;
                 case ProductLevel:
                     content = Client.PolicyGetProductLevel(Context, format, ProductId);
-                    break;
+                     policyTarget = string.Format(Resources.ProductPolicyTarget,
+                        Context.ResourceGroupName, Context.ServiceName, ProductId);
+                   break;
                 case ApiLevel:
                     content = Client.PolicyGetApiLevel(Context, format, ApiId);
-                    break;
+                      policyTarget = string.Format(Resources.ApiPolicyTarget,
+                        Context.ResourceGroupName, Context.ServiceName, ApiId);
+                   break;
                 case OperationLevel:
                     if (string.IsNullOrWhiteSpace(ApiId))
                     {
                         throw new PSArgumentNullException("ApiId");
                     }
                     content = Client.PolicyGetOperationLevel(Context, format, ApiId, OperationId);
+                      policyTarget = string.Format(Resources.OperationPolicyTarget,
+                        Context.ResourceGroupName, Context.ServiceName, ApiId, OperationId);
                     break;
                 default:
                     throw new InvalidOperationException(string.Format("Parameter set name '{0}' is not supported.", ParameterSetName));
@@ -141,14 +151,19 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
             }
             else
             {
-                string resultStr;
-                using (var memoryStream = new MemoryStream(content))
-                using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8))
-                {
-                    resultStr = streamReader.ReadToEnd();
-                }
 
-                WriteObject(resultStr);
+                // Do nothing if force is not specified and user cancelled the operation
+                if (ShouldProcess(policyTarget, Resources.DownloadPolicyDescription))
+                {
+                    string resultStr;
+                    using (var memoryStream = new MemoryStream(content))
+                    using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8))
+                    {
+                        resultStr = streamReader.ReadToEnd();
+                    }
+
+                    WriteObject(resultStr);
+                }
             }
         }
     }
