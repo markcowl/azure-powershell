@@ -32,12 +32,12 @@ using System.Management.Automation.Runspaces;
 using DscNode = Microsoft.Azure.Management.Automation.Models.DscNode;
 using Job = Microsoft.Azure.Management.Automation.Models.Job;
 
- namespace Microsoft.Azure.Commands.Automation.Common
+namespace Microsoft.Azure.Commands.Automation.Common
 {
     public partial class AutomationClient : IAutomationClient
     {
         #region DscConfiguration Operations
-          
+
         public IEnumerable<Model.DscConfiguration> ListDscConfigurations(
             string resourceGroupName,
             string automationAccountName)
@@ -81,7 +81,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             }
         }
 
-        public DirectoryInfo GetConfigurationContent(string resourceGroupName, string automationAccountName, string configurationName, bool? isDraft, string outputFolder, bool overwriteExistingFile)
+        public DirectoryInfo GetConfigurationContent(string resourceGroupName, string automationAccountName, string configurationName, bool? isDraft, string outputFolder, bool overwriteExistingFile, Func<string, string, bool> shouldContinue)
         {
             using (var request = new RequestSettings(this.automationManagementClient))
             {
@@ -113,7 +113,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                     var outputFilePath = outputFolderFullPath + "\\" + configurationName + FileExtension;
 
                     // file exists and overwrite Not specified
-                    if (File.Exists(outputFilePath) && !overwriteExistingFile)
+                    if (ShouldNotOverwrite(outputFilePath, overwriteExistingFile, shouldContinue))
                     {
                         throw new ArgumentException(
                                 string.Format(CultureInfo.CurrentCulture, Resources.ConfigurationAlreadyExists, outputFilePath));
@@ -141,11 +141,12 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             string resourceGroupName,
             string automationAccountName,
             string sourcePath,
-            IDictionary tags, 
+            IDictionary tags,
             string description,
             bool? logVerbose,
             bool published,
-            bool overWrite)
+            bool overWrite,
+            Func<string, string, bool> shouldContinue)
         {
             using (var request = new RequestSettings(this.automationManagementClient))
             {
@@ -190,13 +191,12 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                     resourceGroupName,
                     automationAccountName,
                     configurationName);
-                if (configurationModel != null)
+                if (configurationModel != null && !(overWrite
+                    || shouldContinue(string.Format(Resources.ConfigurationOverwriteQuery, configurationModel.Name),
+                    Resources.ConfigurationOverwriteCaption)))
                 {
-                    if (!overWrite)
-                    {
-                        throw new ResourceCommonException(typeof(Model.DscConfiguration),
-                            string.Format(CultureInfo.CurrentCulture, Resources.ConfigurationAlreadyExists, configurationName));
-                    }
+                    throw new ResourceCommonException(typeof(Model.DscConfiguration),
+                        string.Format(CultureInfo.CurrentCulture, Resources.ConfigurationAlreadyExists, configurationName));
                 }
 
                 // location of the configuration is set to same as that of automation account
@@ -269,14 +269,14 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
 
             using (var request = new RequestSettings(this.automationManagementClient))
             {
-                
+
                 // location of the configuration is set to same as that of automation account
                 string location = this.GetAutomationAccount(resourceGroupName, automationAccountName).Location;
 
                 var configurationCreateParameters = new DscConfigurationCreateOrUpdateParameters()
                 {
                     Name = configrationName,
-                    Location = location,                
+                    Location = location,
                     Properties = new DscConfigurationCreateOrUpdateProperties()
                     {
                         Description = String.Empty,
@@ -323,10 +323,11 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             }
         }
 
-    #endregion
+        #endregion
 
         #region DscMetaConfig Operations
-        public DirectoryInfo GetDscMetaConfig(string resourceGroupName, string automationAccountName, string outputFolder, string[] computerNames, bool overwriteExistingFile)
+        public DirectoryInfo GetDscMetaConfig(string resourceGroupName, string automationAccountName, string outputFolder,
+            string[] computerNames, bool overwriteExistingFile, Func<string, string, bool> shouldContinue)
         {
             using (var request = new RequestSettings(this.automationManagementClient))
             {
@@ -365,7 +366,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                     outputFilePath = outputFolderFullPath + "\\" + computerName + FileExtension;
 
                     // file exists and overwrite Not specified
-                    if (File.Exists(outputFilePath) && !overwriteExistingFile)
+                    if (ShouldNotOverwrite(outputFilePath, overwriteExistingFile, shouldContinue))
                     {
                         throw new ArgumentException(
                                 string.Format(CultureInfo.CurrentCulture, Resources.MetaconfigAlreadyExists, outputFilePath));
@@ -428,14 +429,14 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             if (Directory.Exists(folderPath))
             {
                 // get the full path
-                fullPath  = Path.GetFullPath(folderPath);
+                fullPath = Path.GetFullPath(folderPath);
             }
             else
             {
                 throw new ArgumentException(
                     string.Format(CultureInfo.CurrentCulture, Resources.InvalidFolderPath, folderPath));
             }
-            
+
             return fullPath;
         }
 
@@ -454,7 +455,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             {
                 throw new UnauthorizedAccessException(
                     string.Format(CultureInfo.CurrentCulture, Resources.UnauthorizedAccess, outputFilePath));
-            }    
+            }
         }
 
         #endregion
@@ -780,7 +781,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
 
                 throw;
             }
-	}
+        }
 
         public void RegisterDscNode(string resourceGroupName,
                                             string automationAccountName,
@@ -1101,7 +1102,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                 catch (ResourceNotFoundException)
                 {
                     return null;
-                }                
+                }
             }
         }
 
@@ -1112,7 +1113,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                 try
                 {
                     var nodeConfiguration = this.automationManagementClient.NodeConfigurations.Get(resourceGroupName, automationAccountName, nodeConfigurationName).NodeConfiguration;
-                    
+
                     string computedRollupStatus = GetRollupStatus(resourceGroupName, automationAccountName, nodeConfigurationName);
 
                     if (string.IsNullOrEmpty(rollupStatus) || (rollupStatus != null && computedRollupStatus.Equals(rollupStatus)))
@@ -1157,7 +1158,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                 foreach (var nodeConfiguration in nodeConfigModels)
                 {
                     string computedRollupStatus = GetRollupStatus(resourceGroupName, automationAccountName, nodeConfiguration.Name);
-                    
+
                     if (string.IsNullOrEmpty(rollupStatus) || (rollupStatus != null && computedRollupStatus.Equals(rollupStatus)))
                     {
                         nodeConfigurations.Add(new Model.NodeConfiguration(resourceGroupName, automationAccountName, nodeConfiguration, computedRollupStatus));
@@ -1205,7 +1206,8 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             string automationAccountName,
             string sourcePath,
             string configurationName,
-            bool overWrite)
+            bool overWrite,
+            Func<string, string, bool> shouldContinue)
         {
             using (var request = new RequestSettings(this.automationManagementClient))
             {
@@ -1232,20 +1234,19 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                                             CultureInfo.CurrentCulture,
                                             Resources.ConfigurationSourcePathInvalid));
                 }
-                
-                 // if node configuration already exists, ensure overwrite flag is specified
+
+                // if node configuration already exists, ensure overwrite flag is specified
                 var nodeConfigurationModel = this.TryGetNodeConfiguration(
                     resourceGroupName,
                     automationAccountName,
                     nodeConfigurationName,
                     null);
-                if (nodeConfigurationModel != null)
+                if (nodeConfigurationModel != null && !(overWrite
+                    || shouldContinue(string.Format(Resources.ConfigurationOverwriteQuery, nodeConfigurationModel.Name),
+                    Resources.ConfigurationOverwriteCaption)))
                 {
-                    if (!overWrite)
-                    {
-                        throw new ResourceCommonException(typeof(Model.NodeConfiguration),
-                            string.Format(CultureInfo.CurrentCulture, Resources.NodeConfigurationAlreadyExists, nodeConfigurationName));
-                    }
+                    throw new ResourceCommonException(typeof(Model.NodeConfiguration),
+                        string.Format(CultureInfo.CurrentCulture, Resources.NodeConfigurationAlreadyExists, nodeConfigurationName));
                 }
 
                 // if configuration already exists, ensure overwrite flag is specified
@@ -1268,7 +1269,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                         ContentType = Model.ContentSourceType.embeddedContent.ToString(),
                         Value = fileContent
                     },
-                    Configuration = new DscConfigurationAssociationProperty() 
+                    Configuration = new DscConfigurationAssociationProperty()
                     {
                         Name = configurationName
                     }
@@ -1305,7 +1306,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                         if (nodeList.Any())
                         {
                             throw new ResourceCommonException(
-                                typeof (Model.NodeConfiguration),
+                                typeof(Model.NodeConfiguration),
                                 string.Format(CultureInfo.CurrentCulture, Resources.CannotDeleteNodeConfiguration, name));
                         }
                         else
@@ -1319,7 +1320,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                     if (cloudException.Response.StatusCode == HttpStatusCode.NotFound)
                     {
                         throw new ResourceNotFoundException(
-                            typeof(Model.NodeConfiguration), 
+                            typeof(Model.NodeConfiguration),
                             string.Format(CultureInfo.CurrentCulture, Resources.NodeConfigurationNotFound, name));
                     }
                     throw;
@@ -1350,7 +1351,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             }
         }
 
-        public DirectoryInfo GetDscNodeReportContent(string resourceGroupName, string automationAccountName, Guid nodeId, Guid reportId, string outputFolder, bool overwriteExistingFile)
+        public DirectoryInfo GetDscNodeReportContent(string resourceGroupName, string automationAccountName, Guid nodeId, Guid reportId, string outputFolder, bool overwriteExistingFile, Func<string, string, bool> shouldContinue)
         {
             Requires.Argument("ResourceGroupName", resourceGroupName).NotNull();
             Requires.Argument("AutomationAccountName", automationAccountName).NotNull();
@@ -1366,7 +1367,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                         nodeId,
                         reportId).Content;
 
-                string outputFolderFullPath = this.GetCurrentDirectory(); 
+                string outputFolderFullPath = this.GetCurrentDirectory();
 
                 if (!string.IsNullOrEmpty(outputFolder))
                 {
@@ -1378,7 +1379,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                 var outputFilePath = outputFolderFullPath + "\\" + nodeId + "_" + reportId + FileExtension;
 
                 // file exists and overwrite Not specified
-                if (File.Exists(outputFilePath) && !overwriteExistingFile)
+                if (ShouldNotOverwrite(outputFilePath, overwriteExistingFile, shouldContinue))
                 {
                     throw new ArgumentException(
                             string.Format(CultureInfo.CurrentCulture, Resources.NodeReportAlreadyExists, outputFilePath));
@@ -1492,7 +1493,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                 return nodeReportModels.Select(jobModel => new Commands.Automation.Model.DscNodeReport(resourceGroupName, automationAccountName, nodeId.ToString("D"), jobModel));
             }
         }
-        #endregion 
+        #endregion
 
 
         #region privatemethods
@@ -1548,13 +1549,13 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
         private IDictionary<string, string> ProcessConfigurationParameters(IDictionary parameters, IDictionary configurationData)
         {
             parameters = parameters ?? new Dictionary<string, string>();
-            var filteredParameters = new Dictionary<string,string>();
+            var filteredParameters = new Dictionary<string, string>();
             if (configurationData != null)
             {
                 filteredParameters.Add("ConfigurationData", JsonConvert.SerializeObject(configurationData));
             }
             foreach (var key in parameters.Keys)
-            {                
+            {
                 try
                 {
                     filteredParameters.Add(key.ToString(), JsonConvert.SerializeObject(parameters[key]));
@@ -1563,7 +1564,7 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
                 {
                     throw new ArgumentException(string.Format(
                         CultureInfo.CurrentCulture, Resources.ConfigurationParameterCannotBeSerializedToJson, key.ToString()));
-                }             
+                }
             }
             return filteredParameters;
         }
@@ -1579,6 +1580,12 @@ using Job = Microsoft.Azure.Management.Automation.Models.Job;
             return configuration.Parameters.Cast<DictionaryEntry>().ToDictionary(k => k.Key.ToString(), k => (DscConfigurationParameter)k.Value);
         }
 
+        private bool ShouldNotOverwrite(string fileName, bool overwrite, Func<string, string, bool> shouldContinue)
+        {
+            return File.Exists(fileName) && !(overwrite ||
+                                              shouldContinue(string.Format(Resources.FileOverwriteQuery, fileName),
+                                                  Resources.FileOverwriteCaption));
+        }
         private Model.JobStream CreateJobStreamFromJobStreamModel(AutomationManagement.Models.JobStream jobStream, string resourceGroupName, string automationAccountName, Guid jobId)
         {
             Requires.Argument("jobStream", jobStream).NotNull();

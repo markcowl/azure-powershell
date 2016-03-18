@@ -24,7 +24,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Removes an azure automation Schedule.
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationSchedule", SupportsShouldProcess = true, DefaultParameterSetName = AutomationCmdletParameterSets.ByName)]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationSchedule", SupportsShouldProcess = true, 
+        DefaultParameterSetName = AutomationCmdletParameterSets.ByName)]
     public class RemoveAzureAutomationSchedule : AzureAutomationBaseCmdlet
     {
         /// <summary>
@@ -35,9 +36,9 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the switch parameter not to confirm on removing the schedule.
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Forces the command to run without asking for user confirmation.")]
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -46,9 +47,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             this.ConfirmAction(
-                this.Force.IsPresent,
-                string.Format(CultureInfo.CurrentCulture, Resources.RemoveAzureAutomationScheduleWarning),
                 string.Format(CultureInfo.CurrentCulture, Resources.RemoveAzureAutomationScheduleDescription),
                 this.Name,
                 () =>

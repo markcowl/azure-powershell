@@ -56,7 +56,7 @@ namespace Microsoft.Azure.Commands.ResourceManager.Automation.Test.UnitTests
             tags.Add("tag1", "tags2");
 
             this.mockAutomationClient.Setup(
-                f => f.CreateRunbookByName(resourceGroupName, accountName, runbookName, description, tags, null, null, null, false));
+                f => f.CreateRunbookByName(resourceGroupName, accountName, runbookName, description, tags, null, null, null, false, (s,t) => true));
 
             this.cmdlet.ResourceGroupName = resourceGroupName;
             this.cmdlet.AutomationAccountName = accountName;
@@ -67,7 +67,7 @@ namespace Microsoft.Azure.Commands.ResourceManager.Automation.Test.UnitTests
             this.cmdlet.ExecuteCmdlet();
 
             // Assert
-            this.mockAutomationClient.Verify(f => f.CreateRunbookByName(resourceGroupName, accountName, runbookName, description, tags, null, null, null, false), Times.Once());
+            this.mockAutomationClient.Verify(f => f.CreateRunbookByName(resourceGroupName, accountName, runbookName, description, tags, null, null, null, false, (s,t) => true), Times.Once());
         }
     }
 }

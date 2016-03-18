@@ -21,7 +21,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Remove a DSC configuration
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationDscConfiguration")]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationDscConfiguration",
+        SupportsShouldProcess = true)]
     public class RemoveAzureAutomationDscConfiguration : AzureAutomationBaseCmdlet
     {
         /// <summary>
@@ -33,7 +34,10 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(Position = 3, HelpMessage = "Force confirmation of the removal of the configuration")]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -42,15 +46,14 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.RemovingAzureAutomationDscConfigurationWarning, "DSC Configuration"),
-                string.Format(Resources.RemoveAzureAutomationResourceDescription, "DSC Configuration"),
-                Name,
-                () => this.AutomationClient.DeleteConfiguration(
-                    this.ResourceGroupName,
-                    this.AutomationAccountName,
-                    this.Name));
+                 string.Format(Resources.RemoveAzureAutomationResourceDescription, "DSC Configuration"),
+                 Name,
+                 () => this.AutomationClient.DeleteConfiguration(
+                     this.ResourceGroupName,
+                     this.AutomationAccountName,
+                     this.Name));
         }
     }
 }

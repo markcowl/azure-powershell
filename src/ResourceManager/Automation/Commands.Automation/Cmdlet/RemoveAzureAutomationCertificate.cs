@@ -25,7 +25,9 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Removes a Certificate for automation.
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationCertificate", DefaultParameterSetName = AutomationCmdletParameterSets.ByCertificateName)]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationCertificate",
+        DefaultParameterSetName = AutomationCmdletParameterSets.ByCertificateName,
+        SupportsShouldProcess = true)]
     public class RemoveAzureAutomationCertificate : AzureAutomationBaseCmdlet
     {
         /// <summary>
@@ -35,7 +37,10 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(ParameterSetName = AutomationCmdletParameterSets.ByCertificateName, Position = 3, HelpMessage = "Confirm the removal of the certificate")]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -44,9 +49,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                       Force.IsPresent,
-                      string.Format(Resources.RemovingAzureAutomationResourceWarning, "Certificate"),
                        string.Format(Resources.RemoveAzureAutomationResourceDescription, "Certificate"),
                        Name,
                        () =>

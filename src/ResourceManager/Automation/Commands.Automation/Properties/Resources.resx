@@ -439,4 +439,40 @@
   <data name="JobTerminalState" xml:space="preserve">
     <value>"Job terminal state : Id {0}, state {1}, time {2}"</value>
   </data>
+  <data name="FileOverwriteCaption" xml:space="preserve">
+    <value>Overwriting File</value>
+  </data>
+  <data name="FileOverwriteQuery" xml:space="preserve">
+    <value>Are you sure you want to verwrite file "{0}"?</value>
+  </data>
+  <data name="ConfigurationOverwriteCaption" xml:space="preserve">
+    <value>Overwriting Configuration</value>
+  </data>
+  <data name="ConfigurationOverwriteQuery" xml:space="preserve">
+    <value>Are you sure you want to overwrite configuration '{0}'?</value>
+  </data>
+  <data name="DownloadConfigurationAction" xml:space="preserve">
+    <value>Downloading Configuration</value>
+  </data>
+  <data name="DownloadReportAction" xml:space="preserve">
+    <value>Downloading Report</value>
+  </data>
+  <data name="ExportRunbookAction" xml:space="preserve">
+    <value>Exporting Runbook</value>
+  </data>
+  <data name="ImportConfigurationAction" xml:space="preserve">
+    <value>Importing DSC Configuration</value>
+  </data>
+  <data name="ImportNodeConfigurationAction" xml:space="preserve">
+    <value>Importing DSC Node Configuration</value>
+  </data>
+  <data name="ImportRunbookAction" xml:space="preserve">
+    <value>Importing Automation Runbook</value>
+  </data>
+  <data name="RunbookOverwriteCaption" xml:space="preserve">
+    <value>Overwriting Runbook</value>
+  </data>
+  <data name="RunbookOverwriteQuery" xml:space="preserve">
+    <value>Are you sure you want to overwrite Automation Runbook '{0}'?</value>
+  </data>
 </root>

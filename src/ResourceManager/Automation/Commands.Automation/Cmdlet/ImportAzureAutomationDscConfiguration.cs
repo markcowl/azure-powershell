@@ -19,6 +19,7 @@ using System.Management.Automation;
 using System.Security.Permissions;
 using Microsoft.Azure.Commands.Automation.Common;
 using Microsoft.Azure.Commands.Automation.Model;
+using Microsoft.Azure.Commands.Automation.Properties;
 using Microsoft.WindowsAzure.Commands.Utilities.Common;
 
 namespace Microsoft.Azure.Commands.Automation.Cmdlet
@@ -26,7 +27,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Imports dsc configuration script
     /// </summary>
-    [Cmdlet(VerbsData.Import, "AzureRmAutomationDscConfiguration")]
+    [Cmdlet(VerbsData.Import, "AzureRmAutomationDscConfiguration", 
+        SupportsShouldProcess=true)]
     [OutputType(typeof(DscConfiguration))]
     public class ImportAzureAutomationDscConfiguration : AzureAutomationBaseCmdlet
     {
@@ -93,17 +95,24 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public override void ExecuteCmdlet()
         {
-            var configuration = this.AutomationClient.CreateConfiguration(
-                    this.ResourceGroupName,
-                    this.AutomationAccountName,
-                    this.SourcePath,
-                    this.Tags,
-                    this.Description,
-                    this.LogVerbose,
-                    this.Published,
-                    this.Force);
+            ConfirmAction(
+                Resources.ImportConfigurationAction, 
+                SourcePath,
+                () =>
+                {
+                    var configuration = this.AutomationClient.CreateConfiguration(
+                        this.ResourceGroupName,
+                        this.AutomationAccountName,
+                        this.SourcePath,
+                        this.Tags,
+                        this.Description,
+                        this.LogVerbose,
+                        this.Published,
+                        this.Force,
+                        ShouldContinue);
 
-            this.WriteObject(configuration);
+                    this.WriteObject(configuration);
+                });
         }
     }
 }

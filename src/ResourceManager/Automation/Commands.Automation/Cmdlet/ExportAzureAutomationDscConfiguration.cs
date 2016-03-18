@@ -19,6 +19,7 @@ using System.Management.Automation;
 using System.Security.Permissions;
 using Microsoft.Azure.Commands.Automation.Common;
 using Microsoft.Azure.Commands.Automation.Model;
+using Microsoft.Azure.Commands.Automation.Properties;
 using Microsoft.WindowsAzure.Commands.Utilities.Common;
 
 namespace Microsoft.Azure.Commands.Automation.Cmdlet
@@ -26,7 +27,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Gets configuration script for given configuration name and account name.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "AzureRmAutomationDscConfiguration", DefaultParameterSetName = AutomationCmdletParameterSets.ByAll)]
+    [Cmdlet(VerbsData.Export, "AzureRmAutomationDscConfiguration", DefaultParameterSetName = AutomationCmdletParameterSets.ByAll,
+        SupportsShouldProcess = true)]
     [OutputType(typeof(DirectoryInfo))]
     public class ExportAzureAutomationDscConfiguration : AzureAutomationBaseCmdlet
     {
@@ -72,11 +74,14 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public override void ExecuteCmdlet()
         {
-            bool? isDraft = this.IsDraft();
-
-            var ret = this.AutomationClient.GetConfigurationContent(this.ResourceGroupName, this.AutomationAccountName, this.Name, isDraft, OutputFolder, this.Force);
-
-            this.WriteObject(ret, true);
+            this.ConfirmAction(Resources.DownloadConfigurationAction, Name,
+                () =>
+                {
+                    bool? isDraft = this.IsDraft();
+                    var ret = this.AutomationClient.GetConfigurationContent(this.ResourceGroupName,
+                        this.AutomationAccountName, this.Name, isDraft, OutputFolder, this.Force, ShouldContinue);
+                    this.WriteObject(ret, true);
+                });
         }
 
         /// <summary>

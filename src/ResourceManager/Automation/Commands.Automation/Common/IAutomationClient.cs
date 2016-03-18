@@ -60,7 +60,8 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
         IEnumerable<NodeConfiguration> ListNodeConfigurations(string resourceGroupName, string automationAccountName, string rollupStatus);
 
-        NodeConfiguration CreateNodeConfiguration(string resourceGroupName, string automationAccountName, string sourcePath, string nodeConfiguraionName, bool overWrite);
+        NodeConfiguration CreateNodeConfiguration(string resourceGroupName, string automationAccountName, string sourcePath, 
+            string nodeConfiguraionName, bool overWrite, Func<string, string, bool> shouldContinue );
 
         void DeleteNodeConfiguration(string resourceGroupName, string automationAccountName, string name, bool ignoreNodeMappings);
         #endregion
@@ -71,9 +72,10 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
         DscConfiguration GetConfiguration(string resourceGroupName, string automationAccountName, string configurationName);
 
-        DscConfiguration CreateConfiguration(string resourceGroupName, string automationAccountName, string sourcePath, IDictionary tags, string description, bool? logVerbose, bool published, bool overWrite);
+        DscConfiguration CreateConfiguration(string resourceGroupName, string automationAccountName, string sourcePath, IDictionary tags, 
+            string description, bool? logVerbose, bool published, bool overWrite, Func<string, string, bool> shouldContinue );
 
-        DirectoryInfo GetConfigurationContent(string resourceGroupName, string automationAccountName, string configurationName, bool? isDraft, string outputFolder, bool overwriteExistingFile);
+        DirectoryInfo GetConfigurationContent(string resourceGroupName, string automationAccountName, string configurationName, bool? isDraft, string outputFolder, bool overwriteExistingFile, Func<string, string, bool> shouldContinue);
 
         void DeleteConfiguration(string resourceGroupName, string automationAccountName, string name);
 
@@ -86,7 +88,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
         #endregion
 
         #region DscMetaConfiguration
-        DirectoryInfo GetDscMetaConfig(string resourceGroupName, string automationAccountName, string outputFolder, string[] computerNames, bool overwriteExistingFile);
+        DirectoryInfo GetDscMetaConfig(string resourceGroupName, string automationAccountName, string outputFolder, string[] computerNames, bool overwriteExistingFile, Func<string, string, bool> shouldContinue );
         #endregion
 
         #region DscNode Operations
@@ -133,7 +135,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
         DscNodeReport GetDscNodeReportByReportId(string resourceGroupName, string automationAccountName, Guid nodeId, Guid reportId);
 
-        DirectoryInfo GetDscNodeReportContent(string resourceGroupName, string automationAccountName, Guid nodeId, Guid reportId, string outputFolder, bool overwriteExistingFile);
+        DirectoryInfo GetDscNodeReportContent(string resourceGroupName, string automationAccountName, Guid nodeId, Guid reportId, string outputFolder, bool overwriteExistingFile, Func<string, string, bool> shouldContinue );
         #endregion
 
         #region Webhooks
@@ -191,9 +193,12 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
         IEnumerable<Runbook> ListRunbooks(string resourceGroupName, string automationAccountName, ref string nextLink);
 
-        Runbook CreateRunbookByName(string resourceGroupName, string automationAccountName, string runbookName, string description, IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool overwrite);
+        Runbook CreateRunbookByName(string resourceGroupName, string automationAccountName, string runbookName, string description, 
+            IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool overwrite, Func<string, string, bool> shouldContinue );
 
-        Runbook ImportRunbook(string resourceGroupName, string automationAccountName, string runbookPath, string description, IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool published, bool overwrite, string runbookName);
+        Runbook ImportRunbook(string resourceGroupName, string automationAccountName, string runbookPath, string description, 
+            IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool published, bool overwrite, 
+            string runbookName, Func<string, string, bool> shouldContinue );
 
         void DeleteRunbook(string resourceGroupName, string automationAccountName, string runbookName);
 
@@ -201,7 +206,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
         Runbook UpdateRunbook(string resourceGroupName, string automationAccountName, string runbookName, string description, IDictionary tags, bool? logProgress, bool? logVerbose);
 
-        DirectoryInfo ExportRunbook(string resourceGroupName, string automationAccountName, string runbookName, bool? isDraft, string sourcePath, bool overwrite);
+        DirectoryInfo ExportRunbook(string resourceGroupName, string automationAccountName, string runbookName, bool? isDraft, string sourcePath, bool overwrite, Func<string, string, bool> shouldProcess );
 
         Job StartRunbook(string resourceGroupName, string automationAccountName, string runbookName, IDictionary parameters, string runOn);
 

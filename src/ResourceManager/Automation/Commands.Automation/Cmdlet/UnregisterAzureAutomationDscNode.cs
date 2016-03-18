@@ -28,7 +28,7 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Removes the dsc node.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Unregister, "AzureRmAutomationDscNode")]
+    [Cmdlet(VerbsLifecycle.Unregister, "AzureRmAutomationDscNode", SupportsShouldProcess=true)]
     [OutputType(typeof(DscNode))]
     public class UnregisterAzureAutomationDscNode : AzureAutomationBaseCmdlet
     {
@@ -41,9 +41,9 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the switch parameter not to confirm on removing the dsc node.
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Forces the command to run without asking for user confirmation.")]
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -52,9 +52,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             this.ConfirmAction(
-                this.Force.IsPresent,
-                string.Format(CultureInfo.CurrentCulture, Resources.RemoveDscNodeWarning),
                 string.Format(CultureInfo.CurrentCulture, Resources.RemoveDscNodeDescription, this.Id.ToString()),
                 this.Id.ToString(),
                 () =>

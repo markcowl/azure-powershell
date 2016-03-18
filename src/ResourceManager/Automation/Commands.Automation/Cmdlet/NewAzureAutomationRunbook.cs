@@ -79,7 +79,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
 
             // ByRunbookName
             runbook = this.AutomationClient.CreateRunbookByName(
-                    this.ResourceGroupName, this.AutomationAccountName, this.Name, this.Description, this.Tags, this.Type, this.LogProgress, this.LogVerbose, false);
+                    this.ResourceGroupName, this.AutomationAccountName, this.Name, this.Description, this.Tags, this.Type, this.LogProgress, 
+                    this.LogVerbose, false, (s, t) => true);
             
             this.WriteObject(runbook);
         }

@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Create a new Webhook for automation.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "AzureRmAutomationWebhook")]
+    [Cmdlet(VerbsCommon.New, "AzureRmAutomationWebhook", SupportsShouldProcess=true)]
     [OutputType(typeof(Webhook))]
     public class NewAzureAutomationWebhook : AzureAutomationBaseCmdlet
     {
@@ -68,7 +68,7 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
             HelpMessage = "The Runbook parameters name/value.")]
         public IDictionary Parameters { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = "Skip warning message about one-time viewable webhook URL")]
+        [Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -77,9 +77,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             this.ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.WebhookOneTimeURL, "Webhook"),
                 string.Format(Resources.WebhookOneTimeURL, "Webhook"),
                 Name,
                 () =>

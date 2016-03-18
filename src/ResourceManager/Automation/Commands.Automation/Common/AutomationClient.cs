@@ -435,12 +435,13 @@ namespace Microsoft.Azure.Commands.Automation.Common
         }
 
         public Runbook CreateRunbookByName(string resourceGroupName, string automationAccountName, string runbookName, string description,
-            IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool overwrite)
+            IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool overwrite, Func<string, string, bool> shouldContinue)
         {
             using (var request = new RequestSettings(this.automationManagementClient))
             {
                 var runbookModel = this.TryGetRunbookModel(resourceGroupName, automationAccountName, runbookName);
-                if (runbookModel != null && overwrite == false)
+                if (runbookModel != null && !(overwrite 
+                    || shouldContinue(string.Format(Resources.RunbookOverwriteQuery, runbookModel.Name), Resources.RunbookOverwriteCaption)))
                 {
                     throw new ResourceCommonException(typeof (Runbook),
                         string.Format(CultureInfo.CurrentCulture, Resources.RunbookAlreadyExists, runbookName));
@@ -472,7 +473,9 @@ namespace Microsoft.Azure.Commands.Automation.Common
             }
         }
 
-        public Runbook ImportRunbook(string resourceGroupName, string automationAccountName, string runbookPath, string description, IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool published, bool overwrite, string name)
+        public Runbook ImportRunbook(string resourceGroupName, string automationAccountName, string runbookPath, string description, 
+            IDictionary tags, string type, bool? logProgress, bool? logVerbose, bool published, bool overwrite, 
+            string name, Func<string, string, bool> shouldContinue )
         {
 
             var fileExtension = Path.GetExtension(runbookPath);
@@ -516,7 +519,8 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
             using (var request = new RequestSettings(this.automationManagementClient))
             {
-                var runbook = this.CreateRunbookByName(resourceGroupName, automationAccountName, runbookName, description, tags, type, logProgress, logVerbose, overwrite);
+                var runbook = this.CreateRunbookByName(resourceGroupName, automationAccountName, runbookName, description, tags, type, 
+                    logProgress, logVerbose, overwrite, shouldContinue);
 
                 var rduprop = new RunbookDraftUpdateParameters()
                 {
@@ -595,7 +599,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
         }
 
         public DirectoryInfo ExportRunbook(string resourceGroupName, string automationAccountName,
-            string runbookName, bool? isDraft, string outputFolder, bool overwrite)
+            string runbookName, bool? isDraft, string outputFolder, bool overwrite, Func<string, string, bool> shouldContinue)
         {
             DirectoryInfo ret = null;
             using (var request = new RequestSettings(this.automationManagementClient))
@@ -631,12 +635,12 @@ namespace Microsoft.Azure.Commands.Automation.Common
                     if (false == String.IsNullOrEmpty(publishedContent))
                     {
                         ret = WriteRunbookToFile(outputFolder, runbook.Name, publishedContent, runbook.Properties.RunbookType,
-                               overwrite);
+                               overwrite, shouldContinue);
                     }
                     else if (false == String.IsNullOrEmpty(draftContent))
                     {
                         ret = WriteRunbookToFile(outputFolder, runbook.Name, draftContent, runbook.Properties.RunbookType,
-                                overwrite);
+                                overwrite, shouldContinue);
                     }
                 }
                 else
@@ -650,7 +654,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
                                     runbookName));
                         if (false == String.IsNullOrEmpty(draftContent))
                             ret = WriteRunbookToFile(outputFolder, runbook.Name, draftContent, runbook.Properties.RunbookType,
-                                overwrite);
+                                overwrite, shouldContinue);
                     }
                     else
                     {
@@ -661,7 +665,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
 
                         if (false == String.IsNullOrEmpty(publishedContent))
                             ret = WriteRunbookToFile(outputFolder, runbook.Name, publishedContent, runbook.Properties.RunbookType,
-                                overwrite);
+                                overwrite, shouldContinue);
                     }
                 }
             }
@@ -1775,7 +1779,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
             return connection;
         }
 
-        private DirectoryInfo WriteRunbookToFile(string outputFolder, string runbookName, string content, string runbookType, bool overwriteExistingFile)
+        private DirectoryInfo WriteRunbookToFile(string outputFolder, string runbookName, string content, string runbookType, bool overwriteExistingFile, Func<string, string, bool> shouldContinue )
         {
             string outputFolderFullPath = this.GetCurrentDirectory();
 
@@ -1789,7 +1793,7 @@ namespace Microsoft.Azure.Commands.Automation.Common
             var outputFilePath = outputFolderFullPath + "\\" + runbookName + fileExtension;
 
             // file exists and overwrite Not specified
-            if (File.Exists(outputFilePath) && !overwriteExistingFile)
+            if (ShouldNotOverwrite(outputFilePath, overwriteExistingFile, shouldContinue))
             {
                 throw new ArgumentException(
                         string.Format(CultureInfo.CurrentCulture, Resources.RunbookFileAlreadyExists, outputFilePath));

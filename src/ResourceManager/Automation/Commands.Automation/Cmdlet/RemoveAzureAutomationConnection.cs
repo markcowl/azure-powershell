@@ -25,17 +25,23 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Removes a Connection for automation.
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationConnection", DefaultParameterSetName = AutomationCmdletParameterSets.ByName)]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationConnection",
+        DefaultParameterSetName = AutomationCmdletParameterSets.ByName,
+        SupportsShouldProcess = true)]
     public class RemoveAzureAutomationConnection : AzureAutomationBaseCmdlet
     {
         /// <summary>
         /// Gets or sets the connection name.
         /// </summary>
-        [Parameter(ParameterSetName = AutomationCmdletParameterSets.ByName, Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true, HelpMessage = "The connection name.")]
+        [Parameter(ParameterSetName = AutomationCmdletParameterSets.ByName, Position = 2,
+            Mandatory = true, ValueFromPipelineByPropertyName = true, HelpMessage = "The connection name.")]
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(ParameterSetName = AutomationCmdletParameterSets.ByName, Position = 3, HelpMessage = "Confirm the removal of the connection")]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -44,15 +50,14 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                       Force.IsPresent,
-                       string.Format(Resources.RemovingAzureAutomationResourceWarning, "Connection"),
-                       string.Format(Resources.RemoveAzureAutomationResourceDescription, "Connection"),
-                       Name,
-                       () =>
-                       {
-                           this.AutomationClient.DeleteConnection(this.ResourceGroupName, this.AutomationAccountName, Name);
-                       });
+                        string.Format(Resources.RemoveAzureAutomationResourceDescription, "Connection"),
+                        Name,
+                        () =>
+                        {
+                            this.AutomationClient.DeleteConnection(this.ResourceGroupName, this.AutomationAccountName, Name);
+                        });
         }
     }
 }

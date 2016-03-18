@@ -25,7 +25,9 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Removes a Credential for automation.
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationCredential", DefaultParameterSetName = AutomationCmdletParameterSets.ByName)]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationCredential", 
+        DefaultParameterSetName = AutomationCmdletParameterSets.ByName, 
+        SupportsShouldProcess=true)]
     public class RemoveAzureAutomationCredential : AzureAutomationBaseCmdlet
     {
         /// <summary>
@@ -35,18 +37,20 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(ParameterSetName = AutomationCmdletParameterSets.ByName, Position = 3, HelpMessage = "Confirm the removal of the credential")]
+         /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
-        /// <summary>
+       /// <summary>
         /// Execute this cmdlet.
         /// </summary>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                       Force.IsPresent,
-                       string.Format(Resources.RemovingAzureAutomationResourceWarning, "Credential"),
                        string.Format(Resources.RemoveAzureAutomationResourceDescription, "Credential"),
                        Name,
                        () =>

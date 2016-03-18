@@ -28,7 +28,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Gets azure automation dsc onboarding meta configuration information for a given account.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, "AzureRmAutomationDscOnboardingMetaconfig")]
+    [Cmdlet(VerbsCommon.Get, "AzureRmAutomationDscOnboardingMetaconfig", 
+        SupportsShouldProcess=true)]
     [OutputType(typeof(DscOnboardingMetaconfig))]
     public class GetAzureAutomationDscOnboardingMetaconfig : AzureAutomationBaseCmdlet
     {
@@ -66,13 +67,12 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         public override void ExecuteCmdlet()
         {
             this.ConfirmAction(
-                this.Force.IsPresent,
-                string.Format(CultureInfo.CurrentCulture, Resources.DscMetaMofHasKeysWarning),
                 string.Format(CultureInfo.CurrentCulture, Resources.DscMetaMofHasKeysDescription),
                 this.OutputFolder,
                 () =>
                 {
-                    var ret = this.AutomationClient.GetDscMetaConfig(this.ResourceGroupName, this.AutomationAccountName, this.OutputFolder, this.ComputerName, this.Force);
+                    var ret = this.AutomationClient.GetDscMetaConfig(this.ResourceGroupName, this.AutomationAccountName, this.OutputFolder, 
+                        this.ComputerName, this.Force, ShouldContinue);
                     this.WriteObject(ret, true);
                 });
         }

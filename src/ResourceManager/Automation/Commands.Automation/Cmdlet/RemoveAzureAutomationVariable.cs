@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
     /// <summary>
     /// Gets azure automation variables for a given account.
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationVariable")]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmAutomationVariable", SupportsShouldProcess=true)]
     [OutputType(typeof(Variable))]
     public class RemoveAzureAutomationVariable : AzureAutomationBaseCmdlet
     {
@@ -36,7 +36,10 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(Position = 3, HelpMessage = "Confirm the removal of the variable")]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -45,9 +48,8 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.RemovingAzureAutomationResourceWarning, "Variable"),
                 string.Format(Resources.RemoveAzureAutomationResourceDescription, "Variable"),
                 Name,
                 () =>
