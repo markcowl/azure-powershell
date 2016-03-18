@@ -22,7 +22,7 @@ using Microsoft.Azure.Commands.Batch.Properties;
 
 namespace Microsoft.Azure.Commands.Batch
 {
-    [Cmdlet(VerbsCommon.Remove, Constants.AzureBatchNodeFile)]
+    [Cmdlet(VerbsCommon.Remove, Constants.AzureBatchNodeFile, SupportsShouldProcess = true)]
     public class RemoveBatchNodeFileCommand : BatchObjectModelCmdletBase
     {
         internal const string TaskParameterSet = "Task";
@@ -57,18 +57,20 @@ namespace Microsoft.Azure.Commands.Batch
         [ValidateNotNullOrEmpty]
         public PSNodeFile InputObject { get; set; }
 
-        [Parameter]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             string fileName = this.InputObject == null ? this.Name : this.InputObject.Name;
             NodeFileOperationParameters parameters = new NodeFileOperationParameters(this.BatchContext, this.JobId, this.TaskId, this.PoolId,
                 this.ComputeNodeId, this.Name, this.InputObject, this.AdditionalBehaviors);
 
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.RemoveNodeFileConfirm, fileName),
                 Resources.RemoveNodeFile,
                 fileName,
                 () => BatchClient.DeleteNodeFile(parameters));

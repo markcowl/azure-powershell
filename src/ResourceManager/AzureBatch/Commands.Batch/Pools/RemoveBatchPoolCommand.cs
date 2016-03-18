@@ -21,7 +21,7 @@ using Constants = Microsoft.Azure.Commands.Batch.Utils.Constants;
 
 namespace Microsoft.Azure.Commands.Batch
 {
-    [Cmdlet(VerbsCommon.Remove, Constants.AzureBatchPool)]
+    [Cmdlet(VerbsCommon.Remove, Constants.AzureBatchPool, SupportsShouldProcess = true)]
     public class RemoveBatchPoolCommand : BatchObjectModelCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true, ValueFromPipelineByPropertyName = true, 
@@ -29,14 +29,16 @@ namespace Microsoft.Azure.Commands.Batch
         [ValidateNotNullOrEmpty]
         public string Id { get; set; }
 
-        [Parameter]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.RemovePoolConfirm, this.Id),
                 Resources.RemovePool,
                 this.Id,
                 () => BatchClient.DeletePool(this.BatchContext, this.Id, this.AdditionalBehaviors));

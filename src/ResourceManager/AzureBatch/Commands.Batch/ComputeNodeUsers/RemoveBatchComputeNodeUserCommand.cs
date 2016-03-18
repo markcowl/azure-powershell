@@ -39,17 +39,19 @@ namespace Microsoft.Azure.Commands.Batch
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             ComputeNodeUserOperationParameters parameters = new ComputeNodeUserOperationParameters(this.BatchContext, this.PoolId, this.ComputeNodeId,
                 this.Name, this.AdditionalBehaviors);
 
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.RemoveComputeNodeUserConfirm, this.Name),
                 Resources.RemoveComputeNodeUser,
                 this.Name,
                 () => BatchClient.DeleteComputeNodeUser(parameters));
