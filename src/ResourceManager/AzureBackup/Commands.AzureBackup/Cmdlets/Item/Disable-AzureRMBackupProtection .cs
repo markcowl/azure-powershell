@@ -29,7 +29,8 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets.DataSource
     /// <summary>
     /// Disable Azure Backup protection
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Disable, "AzureRmBackupProtection"), OutputType(typeof(AzureRMBackupJob))]
+    [Cmdlet(VerbsLifecycle.Disable, "AzureRmBackupProtection", SupportsShouldProcess = true),
+    OutputType(typeof(AzureRMBackupJob))]
     public class DisableAzureRMBackupProtection : AzureRMBackupDSCmdletBase
     {
         [Parameter(Position = 1, Mandatory = false, HelpMessage = AzureBackupCmdletHelpMessage.RemoveProtectionOption)]
@@ -39,18 +40,21 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets.DataSource
             set { DeleteBackupData = value; }
         }
 
-        [Parameter(Mandatory = false, HelpMessage = "Don't ask for confirmation.")]
-        public SwitchParameter Force { get; set; }   
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        public SwitchParameter Force { get; set; }
 
         private bool DeleteBackupData;
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.DisableProtectionWarning, Item.Name),
                 Resources.DisableProtectionMessage,
-                Item.Name, () =>
+                Item.Name,
+                () =>
                 {
                     ExecutionBlock(() =>
                     {
@@ -83,7 +87,7 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets.DataSource
                             new Models.AzureRMBackupVault(Item.ResourceGroupName, Item.ResourceName, Item.Location),
                             operationStatus.JobList).FirstOrDefault());
                     });
-                });            
+                });
         }
     }
 }

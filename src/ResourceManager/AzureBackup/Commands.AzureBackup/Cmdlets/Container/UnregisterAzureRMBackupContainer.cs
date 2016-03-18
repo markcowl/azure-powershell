@@ -30,14 +30,18 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets
     /// <summary>
     /// Get list of containers
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Unregister, "AzureRmBackupContainer")]
+    [Cmdlet(VerbsLifecycle.Unregister, "AzureRmBackupContainer", SupportsShouldProcess = true)]
     public class UnregisterAzureRMBackupContainer : AzureBackupContainerCmdletBase
     {
-        [Parameter(Position = 1, Mandatory = false, HelpMessage = "Confirm unregistration and deletion of server")]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             ExecutionBlock(() =>
             {
                 base.ExecuteCmdlet();
@@ -62,19 +66,26 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets
 
         private void DeleteServer()
         {
-            ConfirmAction(Force, Resources.UnregisterServerCaption, Resources.UnregisterServerMessage, "", () =>
+            ConfirmAction(Resources.UnregisterServerMessage, "", () =>
                 AzureBackupClient.UnregisterMachineContainer(Container.ResourceGroupName, Container.ResourceName, Container.Id));
         }
 
         private void UnregisterContainer()
         {
             string containerUniqueName = Container.ContainerUniqueName;
-            var operationId = AzureBackupClient.UnRegisterContainer(Container.ResourceGroupName, Container.ResourceName, containerUniqueName);
+            ConfirmAction(Resources.UnregisterContainerMessage, containerUniqueName,
+                () =>
+                {
+                    var operationId = AzureBackupClient.UnRegisterContainer(Container.ResourceGroupName,
+                        Container.ResourceName, containerUniqueName);
 
-            WriteObject(GetCreatedJobs(Container.ResourceGroupName, 
-                Container.ResourceName, 
-                new Models.AzureRMBackupVault(Container.ResourceGroupName, Container.ResourceName, Container.Location), 
-                GetOperationStatus(Container.ResourceGroupName, Container.ResourceName, operationId).JobList).FirstOrDefault());
+                    WriteObject(GetCreatedJobs(Container.ResourceGroupName,
+                        Container.ResourceName,
+                        new Models.AzureRMBackupVault(Container.ResourceGroupName, Container.ResourceName,
+                            Container.Location),
+                        GetOperationStatus(Container.ResourceGroupName, Container.ResourceName, operationId).JobList)
+                        .FirstOrDefault());
+                });
         }
     }
 }

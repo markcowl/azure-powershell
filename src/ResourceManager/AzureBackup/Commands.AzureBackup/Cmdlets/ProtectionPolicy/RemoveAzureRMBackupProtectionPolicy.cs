@@ -26,17 +26,19 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets
     /// <summary>
     /// Remove a protection policy
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "AzureRmBackupProtectionPolicy")]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmBackupProtectionPolicy", SupportsShouldProcess = true)]
     public class RemoveAzureRMBackupProtectionPolicy : AzureBackupPolicyCmdletBase
     {
-        [Parameter(Mandatory = false, HelpMessage = "Don't ask for confirmation.")]
-        public SwitchParameter Force { get; set; }    
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
-               Force.IsPresent,
-               string.Format(Resources.RemoveProtectionPolicyWarning, ProtectionPolicy.Name),
                Resources.RemoveProtectionPolicyMessage,
                ProtectionPolicy.Name, () =>
                {
