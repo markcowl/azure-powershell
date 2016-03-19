@@ -158,16 +158,6 @@ namespace Microsoft.WindowsAzure.Commands.Common.Extensions.DSC.Publish
             if (parameterSetName == CreateArchiveParameterSetName)
             {
                 archive = configurationArchivePath;
-
-                if (!force && File.Exists(archive))
-                {
-                    ThrowTerminatingError(
-                        new ErrorRecord(
-                            new UnauthorizedAccessException(string.Format(CultureInfo.CurrentUICulture, Microsoft.Azure.Commands.Compute.Properties.Resources.AzureVMDscArchiveAlreadyExists, archive)),
-                            "FileAlreadyExists",
-                            ErrorCategory.PermissionDenied,
-                            null));
-                }
             }
             else
             {
@@ -179,12 +169,21 @@ namespace Microsoft.WindowsAzure.Commands.Common.Extensions.DSC.Publish
                 _temporaryFilesToDelete.Add(archive);
             }
 
-            if (File.Exists(archive))
-            {
-                File.Delete(archive);
-            }
+            ConfirmAction(
+                force,
+                string.Format(Microsoft.Azure.Commands.Compute.Properties.Resources.OverwriteZipArchiveQuery, archive),
+                Microsoft.Azure.Commands.Compute.Properties.Resources.CreatingZipArchiveMessage,
+                archive,
+                () =>
+                {
+                    if (File.Exists(archive))
+                    {
+                        File.Delete(archive);
+                    }
 
-            ZipFile.CreateFromDirectory(tempZipFolder, archive);
+                    ZipFile.CreateFromDirectory(tempZipFolder, archive);
+                },
+                () => File.Exists(archive));
 
             return archive;
         }
@@ -208,10 +207,9 @@ namespace Microsoft.WindowsAzure.Commands.Common.Extensions.DSC.Publish
             if (parameterSetName == CreateArchiveParameterSetName)
             {
                 ConfirmAction(
-                    true,
-                    string.Empty,
                     Microsoft.Azure.Commands.Compute.Properties.Resources.AzureVMDscCreateArchiveAction,
-                    outputArchivePath, () => CreateConfigurationArchive(
+                    outputArchivePath, 
+                    () => CreateConfigurationArchive(
                         configurationPath,
                         configurationDataPath,
                         additionalPath,
@@ -407,24 +405,11 @@ namespace Microsoft.WindowsAzure.Commands.Common.Extensions.DSC.Publish
                 GetBlobReference(storageCredentials, storageEndpointSuffix, containerName, archivePath);
 
             ConfirmAction(
-                true,
-                string.Empty,
+                force,
+                string.Format(CultureInfo.CurrentUICulture, Microsoft.Azure.Commands.Compute.Properties.Resources.OverwriteBlobQuery, modulesBlob.Uri),
                 string.Format(CultureInfo.CurrentUICulture, Microsoft.Azure.Commands.Compute.Properties.Resources.AzureVMDscUploadToBlobStorageAction, archivePath),
                 modulesBlob.Uri.AbsoluteUri, () =>
                 {
-                    if (!force && modulesBlob.Exists())
-                    {
-                        ThrowTerminatingError(
-                            new ErrorRecord(
-                                new UnauthorizedAccessException(
-                                    string.Format(
-                                        CultureInfo.CurrentUICulture,
-                                        Microsoft.Azure.Commands.Compute.Properties.Resources.AzureVMDscStorageBlobAlreadyExists, modulesBlob.Uri.AbsoluteUri)),
-                                "StorageBlobAlreadyExists",
-                                ErrorCategory.PermissionDenied,
-                                null));
-                    }
-
                     modulesBlob.UploadFromFile(archivePath, FileMode.Open);
 
                     WriteVerbose(string.Format(
@@ -435,7 +420,8 @@ namespace Microsoft.WindowsAzure.Commands.Common.Extensions.DSC.Publish
                     {
                         WriteObject(modulesBlob.Uri.AbsoluteUri);
                     }
-                });
+                },
+                () => modulesBlob.Exists());
         }
 
         private void CopyFileToZipFolder(String source, string destination)

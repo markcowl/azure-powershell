@@ -21,7 +21,7 @@ using System.Management.Automation;
 
 namespace Microsoft.Azure.Commands.Compute
 {
-    [Cmdlet(VerbsCommon.Remove, ProfileNouns.AvailabilitySet)]
+    [Cmdlet(VerbsCommon.Remove, ProfileNouns.AvailabilitySet, SupportsShouldProcess = true)]
     [OutputType(typeof(PSAzureOperationResponse))]
     public class RemoveAzureAvailabilitySetCommand : AvailabilitySetBaseCmdlet
     {
@@ -41,28 +41,28 @@ namespace Microsoft.Azure.Commands.Compute
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(
-           Position = 2,
-           HelpMessage = "To force the removal.")]
-        [ValidateNotNullOrEmpty]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             base.ExecuteCmdlet();
-
+            ConfirmAction(Properties.Resources.AvailabilitySetRemovalAction,
+                    Name,
+                    () =>
             ExecuteClientAction(() =>
             {
-                if (this.Force.IsPresent
-                    || this.ShouldContinue(Properties.Resources.AvailabilitySetRemovalConfirmation, Properties.Resources.AvailabilitySetRemovalCaption))
-                {
-                    var op = this.AvailabilitySetClient.DeleteWithHttpMessagesAsync(
-                        this.ResourceGroupName,
-                        this.Name).GetAwaiter().GetResult();
-                    var result = Mapper.Map<PSAzureOperationResponse>(op);
-                    WriteObject(result);
-                }
-            });
+
+                var op = this.AvailabilitySetClient.DeleteWithHttpMessagesAsync(
+                    this.ResourceGroupName,
+                    this.Name).GetAwaiter().GetResult();
+                var result = Mapper.Map<PSAzureOperationResponse>(op);
+                WriteObject(result);
+            }));
         }
     }
 }

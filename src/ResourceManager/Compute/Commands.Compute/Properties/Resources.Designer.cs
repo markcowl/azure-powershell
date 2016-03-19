@@ -79,6 +79,15 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Removing Availability Set.
+        /// </summary>
+        public static string AvailabilitySetRemovalAction {
+            get {
+                return ResourceManager.GetString("AvailabilitySetRemovalAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Availability set removal operation.
         /// </summary>
         public static string AvailabilitySetRemovalCaption {
@@ -270,6 +279,15 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Creating zip Archive.
+        /// </summary>
+        public static string CreatingZipArchiveMessage {
+            get {
+                return ResourceManager.GetString("CreatingZipArchiveMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Run File has been assigned, and the Custom Script extension will try to use the first specified File Name as the Run File..
         /// </summary>
         public static string CustomScriptExtensionTryToUseTheFirstSpecifiedFileAsRunScript {
@@ -284,6 +302,15 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         public static string DataDiskNotAssignedForVM {
             get {
                 return ResourceManager.GetString("DataDiskNotAssignedForVM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to stop and deallocate the virtual machine?.
+        /// </summary>
+        public static string DeallocatingVirtualMachineQuery {
+            get {
+                return ResourceManager.GetString("DeallocatingVirtualMachineQuery", resourceCulture);
             }
         }
         
@@ -387,6 +414,15 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enabling Azure Disk Encryption on the VM, this may take up to 15 minutes.
+        /// </summary>
+        public static string EnableAzureDiskEncryptionAction {
+            get {
+                return ResourceManager.GetString("EnableAzureDiskEncryptionAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable AzureDiskEncryption on the VM.
         /// </summary>
         public static string EnableAzureDiskEncryptionCaption {
@@ -419,6 +455,24 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         public static string ErrorDuringGettingStorageAccountForBootDiagnostics {
             get {
                 return ResourceManager.GetString("ErrorDuringGettingStorageAccountForBootDiagnostics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blob {0} already exists, are you sure you want to overwrite it?.
+        /// </summary>
+        public static string OverwriteBlobQuery {
+            get {
+                return ResourceManager.GetString("OverwriteBlobQuery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zip archive {0} already exists, are you sure you want to overwrite it?.
+        /// </summary>
+        public static string OverwriteZipArchiveQuery {
+            get {
+                return ResourceManager.GetString("OverwriteZipArchiveQuery", resourceCulture);
             }
         }
         
@@ -932,6 +986,24 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Removing the Virtual Machine.
+        /// </summary>
+        public static string RemovingVirtualMachineAction {
+            get {
+                return ResourceManager.GetString("RemovingVirtualMachineAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopping the virtual machine.
+        /// </summary>
+        public static string StoppingVirtualMachineAction {
+            get {
+                return ResourceManager.GetString("StoppingVirtualMachineAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Storage account, {0}, is not found.  The OS disk may be in a different subscription..
         /// </summary>
         public static string StorageAccountNotFoundForBootDiagnostics {
@@ -959,6 +1031,15 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Removing the virtual machine extension.
+        /// </summary>
+        public static string VirtualMachineExtensionRemovalAction {
+            get {
+                return ResourceManager.GetString("VirtualMachineExtensionRemovalAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Virtual machine extension removal operation.
         /// </summary>
         public static string VirtualMachineExtensionRemovalCaption {
@@ -973,6 +1054,15 @@ namespace Microsoft.Azure.Commands.Compute.Properties {
         public static string VirtualMachineExtensionRemovalConfirmation {
             get {
                 return ResourceManager.GetString("VirtualMachineExtensionRemovalConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Virtual machine extension &apos;{0}&apos; extending VM &apos;{1}&apos;.
+        /// </summary>
+        public static string VirtualMachineExtensionTarget {
+            get {
+                return ResourceManager.GetString("VirtualMachineExtensionTarget", resourceCulture);
             }
         }
         

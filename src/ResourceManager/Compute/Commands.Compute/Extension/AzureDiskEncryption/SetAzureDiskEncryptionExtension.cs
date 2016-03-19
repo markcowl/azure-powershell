@@ -30,7 +30,8 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
     [Cmdlet(
         VerbsCommon.Set,
         ProfileNouns.AzureDiskEncryptionExtension,
-        DefaultParameterSetName = aadClientSecretParameterSet)]
+        DefaultParameterSetName = aadClientSecretParameterSet, 
+        SupportsShouldProcess = true)]
     [OutputType(typeof(PSAzureOperationResponse))]
     public class SetAzureDiskEncryptionExtensionCommand : VirtualMachineExtensionBaseCmdlet
     {
@@ -171,8 +172,10 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
         [ValidateNotNullOrEmpty]
         public string Passphrase { get; set; }
 
-        [Parameter(HelpMessage = "To force the removal.")]
-        [ValidateNotNullOrEmpty]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         private string currentOSType = null;
@@ -405,35 +408,38 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             base.ExecuteCmdlet();
 
             ExecuteClientAction(() =>
             {
-                if (this.Force.IsPresent ||
-                this.ShouldContinue(Properties.Resources.EnableAzureDiskEncryptionConfirmation, Properties.Resources.EnableAzureDiskEncryptionCaption))
-                {
-                    VirtualMachine virtualMachineResponse = this.ComputeClient.ComputeManagementClient.VirtualMachines.GetWithInstanceView(
-                        this.ResourceGroupName, VMName).Body;
-
-                    currentOSType = virtualMachineResponse.StorageProfile.OsDisk.OsType;
-
-                    if (string.Equals(currentOSType, "Linux", StringComparison.InvariantCultureIgnoreCase))
+                ConfirmAction(Properties.Resources.EnableAzureDiskEncryptionAction, 
+                    string.Format(Properties.Resources.VirtualMachineExtensionTarget, Name, VMName),
+                    () =>
                     {
-                        CreateVMBackupForLinx();
-                    }
+                        VirtualMachine virtualMachineResponse =
+                            this.ComputeClient.ComputeManagementClient.VirtualMachines.GetWithInstanceView(
+                                this.ResourceGroupName, VMName).Body;
 
-                    VirtualMachineExtension parameters = GetVmExtensionParameters(virtualMachineResponse);
+                        currentOSType = virtualMachineResponse.StorageProfile.OsDisk.OsType;
 
-                    this.VirtualMachineExtensionClient.CreateOrUpdateWithHttpMessagesAsync(
-                        this.ResourceGroupName,
-                        this.VMName,
-                        this.Name,
-                        parameters).GetAwaiter().GetResult();
+                        if (string.Equals(currentOSType, "Linux", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            CreateVMBackupForLinx();
+                        }
 
-                    var op = UpdateVmEncryptionSettings();
-                    var result = Mapper.Map<PSAzureOperationResponse>(op);
-                    WriteObject(result);
-                }
+                        VirtualMachineExtension parameters = GetVmExtensionParameters(virtualMachineResponse);
+
+                        this.VirtualMachineExtensionClient.CreateOrUpdateWithHttpMessagesAsync(
+                            this.ResourceGroupName,
+                            this.VMName,
+                            this.Name,
+                            parameters).GetAwaiter().GetResult();
+
+                        var op = UpdateVmEncryptionSettings();
+                        var result = Mapper.Map<PSAzureOperationResponse>(op);
+                        WriteObject(result);
+                    });
             });
         }
     }

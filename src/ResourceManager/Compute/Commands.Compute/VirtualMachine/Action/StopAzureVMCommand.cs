@@ -25,7 +25,8 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Commands.Compute
 {
-    [Cmdlet(VerbsLifecycle.Stop, ProfileNouns.VirtualMachine, DefaultParameterSetName = ResourceGroupNameParameterSet)]
+    [Cmdlet(VerbsLifecycle.Stop, ProfileNouns.VirtualMachine, DefaultParameterSetName = ResourceGroupNameParameterSet,
+        SupportsShouldProcess = true)]
     [OutputType(typeof(PSAzureOperationResponse))]
     public class StopAzureVMCommand : VirtualMachineActionBaseCmdlet
     {
@@ -39,7 +40,7 @@ namespace Microsoft.Azure.Commands.Compute
 
         [Parameter(
             Mandatory = false,
-            HelpMessage = "To force the stopping.")]
+            HelpMessage = "To force the deallocating.")]
         [ValidateNotNullOrEmpty]
         public SwitchParameter Force { get; set; }
 
@@ -55,24 +56,34 @@ namespace Microsoft.Azure.Commands.Compute
 
             ExecuteClientAction(() =>
             {
-                if (this.Force.IsPresent || this.ShouldContinue(Properties.Resources.VirtualMachineStoppingConfirmation, Properties.Resources.VirtualMachineStoppingCaption))
-                {
-                    Action<Func<string, string, Dictionary<string, List<string>>, CancellationToken, Task<Rest.Azure.AzureOperationResponse>>> call = f =>
+                Action<Func<string, string, Dictionary<string, List<string>>, CancellationToken, Task<Rest.Azure.AzureOperationResponse>>> call =
+                    f =>
                     {
-                        Rest.Azure.AzureOperationResponse op = f(this.ResourceGroupName, this.Name, null, CancellationToken.None).GetAwaiter().GetResult();
+                        Rest.Azure.AzureOperationResponse op =
+                            f(this.ResourceGroupName, this.Name, null, CancellationToken.None)
+                                .GetAwaiter()
+                                .GetResult();
                         var result = Mapper.Map<PSAzureOperationResponse>(op);
                         WriteObject(result);
                     };
+                ConfirmAction(
+                    Force.IsPresent,
+                    Properties.Resources.DeallocatingVirtualMachineQuery,
+                    Properties.Resources.StoppingVirtualMachineAction,
+                    Name,
+                    () =>
+                    {
 
-                    if (this.StayProvisioned)
-                    {
-                        call(this.VirtualMachineClient.PowerOffWithHttpMessagesAsync);
-                    }
-                    else
-                    {
-                        call(this.VirtualMachineClient.DeallocateWithHttpMessagesAsync);
-                    }
-                }
+                        if (this.StayProvisioned)
+                        {
+                            call(this.VirtualMachineClient.PowerOffWithHttpMessagesAsync);
+                        }
+                        else
+                        {
+                            call(this.VirtualMachineClient.DeallocateWithHttpMessagesAsync);
+                        }
+                    },
+                    () => !StayProvisioned);
             });
         }
     }

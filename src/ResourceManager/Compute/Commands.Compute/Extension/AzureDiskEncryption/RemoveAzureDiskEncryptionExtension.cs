@@ -24,7 +24,7 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
 {
     [Cmdlet(
         VerbsCommon.Remove,
-        ProfileNouns.AzureDiskEncryptionExtension)]
+        ProfileNouns.AzureDiskEncryptionExtension, SupportsShouldProcess = true)]
     [OutputType(typeof(PSAzureOperationResponse))]
     public class RemoveAzureDiskEncryptionExtensionCommand : VirtualMachineExtensionBaseCmdlet
     {
@@ -54,14 +54,16 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
-        [Parameter(HelpMessage = "To force the removal.")]
-        [ValidateNotNullOrEmpty]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             base.ExecuteCmdlet();
-
             ExecuteClientAction(() =>
             {
                 VirtualMachine virtualMachineResponse = (this.ComputeClient.ComputeManagementClient.VirtualMachines.Get(this.ResourceGroupName, this.VMName));
@@ -76,16 +78,17 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
                     this.Name = this.Name ?? AzureDiskEncryptionExtensionContext.LinuxExtensionDefaultName;
                 }
 
-                if (this.Force.IsPresent
-                    || this.ShouldContinue(Properties.Resources.VirtualMachineExtensionRemovalConfirmation, Properties.Resources.VirtualMachineExtensionRemovalCaption))
-                {
-                    var op = this.VirtualMachineExtensionClient.DeleteWithHttpMessagesAsync(
-                        this.ResourceGroupName,
-                        this.VMName,
-                        this.Name).GetAwaiter().GetResult();
-                    var result = Mapper.Map<PSAzureOperationResponse>(op);
-                    WriteObject(result);
-                }
+                ConfirmAction(Properties.Resources.VirtualMachineExtensionRemovalAction,
+                    string.Format(Properties.Resources.VirtualMachineExtensionTarget, Name, VMName),
+                    () =>
+                    {
+                        var op = this.VirtualMachineExtensionClient.DeleteWithHttpMessagesAsync(
+                            this.ResourceGroupName,
+                            this.VMName,
+                            this.Name).GetAwaiter().GetResult();
+                        var result = Mapper.Map<PSAzureOperationResponse>(op);
+                        WriteObject(result);
+                    });
             });
         }
     }

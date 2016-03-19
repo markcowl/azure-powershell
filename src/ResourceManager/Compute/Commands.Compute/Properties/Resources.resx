@@ -501,4 +501,37 @@ The file needs to be a PowerShell script (.ps1 or .psm1) or a ZIP archive (.zip)
     <value>No Azure Enhanced Monitoring extension found under resource group '{0}', virtual machine '{1}'.</value>
     <comment>{0} = resource group name, {1} = virtual machine name</comment>
   </data>
+  <data name="AvailabilitySetRemovalAction" xml:space="preserve">
+    <value>Removing Availability Set</value>
+  </data>
+  <data name="CreatingZipArchiveMessage" xml:space="preserve">
+    <value>Creating zip Archive</value>
+  </data>
+  <data name="DeallocatingVirtualMachineQuery" xml:space="preserve">
+    <value>Are you sure you want to stop and deallocate the virtual machine?</value>
+  </data>
+  <data name="EnableAzureDiskEncryptionAction" xml:space="preserve">
+    <value>Enabling Azure Disk Encryption on the VM, this may take up to 15 minutes</value>
+  </data>
+  <data name="OverwriteBlobQuery" xml:space="preserve">
+    <value>Blob {0} already exists, are you sure you want to overwrite it?</value>
+    <comment>{0} = blob name</comment>
+  </data>
+  <data name="OverwriteZipArchiveQuery" xml:space="preserve">
+    <value>Zip archive {0} already exists, are you sure you want to overwrite it?</value>
+    <comment>{0} = zip archive name</comment>
+  </data>
+  <data name="RemovingVirtualMachineAction" xml:space="preserve">
+    <value>Removing the Virtual Machine</value>
+  </data>
+  <data name="StoppingVirtualMachineAction" xml:space="preserve">
+    <value>Stopping the virtual machine</value>
+  </data>
+  <data name="VirtualMachineExtensionRemovalAction" xml:space="preserve">
+    <value>Removing the virtual machine extension</value>
+  </data>
+  <data name="VirtualMachineExtensionTarget" xml:space="preserve">
+    <value>Virtual machine extension '{0}' extending VM '{1}'</value>
+    <comment>{0} = extension Name, {1} = vm name</comment>
+  </data>
 </root>

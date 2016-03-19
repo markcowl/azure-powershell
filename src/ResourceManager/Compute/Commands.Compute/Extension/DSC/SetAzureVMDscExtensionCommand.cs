@@ -451,8 +451,11 @@ namespace Microsoft.Azure.Commands.Compute.Extension.DSC
                     containerReference.GetBlockBlobReference(configurationDataBlobName);
                 
                 ConfirmAction(
-                    true,
-                    string.Empty,
+                    Force.IsPresent,
+                    string.Format(
+                        CultureInfo.CurrentUICulture,
+                        Microsoft.Azure.Commands.Compute.Properties.Resources.OverwriteBlobQuery,
+                        configurationBlobReference.Uri),
                     string.Format(
                         CultureInfo.CurrentUICulture,
                         Microsoft.Azure.Commands.Compute.Properties.Resources.AzureVMDscUploadToBlobStorageAction,
@@ -460,20 +463,6 @@ namespace Microsoft.Azure.Commands.Compute.Extension.DSC
                     configurationDataBlobReference.Uri.AbsoluteUri,
                     () =>
                     {
-                        if (!Force && configurationDataBlobReference.Exists())
-                        {
-                            ThrowTerminatingError(
-                                new ErrorRecord(
-                                    new UnauthorizedAccessException(
-                                        string.Format(
-                                            CultureInfo.CurrentUICulture,
-                                            Microsoft.Azure.Commands.Compute.Properties.Resources.AzureVMDscStorageBlobAlreadyExists,
-                                            configurationDataBlobName)),
-                                    "StorageBlobAlreadyExists",
-                                    ErrorCategory.PermissionDenied,
-                                    null));
-                        }
-
                         configurationDataBlobReference.UploadFromFile(ConfigurationData, FileMode.Open);
 
                         var configurationDataBlobSasToken =
@@ -482,7 +471,8 @@ namespace Microsoft.Azure.Commands.Compute.Extension.DSC
                         configurationDataBlobUri =
                             configurationDataBlobReference.StorageUri.PrimaryUri.AbsoluteUri
                             + configurationDataBlobSasToken;
-                    });
+                    },
+                    () => configurationDataBlobReference.Exists());
             }
             return new ConfigurationUris
             {

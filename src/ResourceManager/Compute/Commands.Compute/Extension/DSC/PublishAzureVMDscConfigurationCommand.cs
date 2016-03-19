@@ -100,7 +100,7 @@ namespace Microsoft.Azure.Commands.Compute.Extension.DSC
         /// By default Publish-AzureRmVMDscConfiguration will not overwrite any existing blobs. 
         /// Use -Force to overwrite them.
         /// </summary>
-        [Parameter(HelpMessage = "By default Publish-AzureRmVMDscConfiguration will not overwrite any existing blobs")]
+        [Parameter(HelpMessage = "By default Publish-AzureRmVMDscConfiguration will not overwrite any existing blobs or files")]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
