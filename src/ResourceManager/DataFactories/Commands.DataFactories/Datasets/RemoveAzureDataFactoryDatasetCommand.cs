@@ -23,12 +23,16 @@ namespace Microsoft.Azure.Commands.DataFactories
     [Cmdlet(VerbsCommon.Remove, Constants.Dataset, DefaultParameterSetName = ByFactoryName)]
     public class RemoveAzureDataFactoryDatasetCommand : DatasetContextBaseCmdlet
     {
-        [Parameter(Mandatory = false, HelpMessage = "Don't ask for confirmation.")]
+        /// <summary>
+        /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
+        /// </summary>
+        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         [EnvironmentPermission(SecurityAction.Demand, Unrestricted = true)]
         public override void ExecuteCmdlet()
         {
+            CheckForDeprecationWarning("Force", Force);
             if (ParameterSetName == ByFactoryObject)
             {
                 if (DataFactory == null)
@@ -41,12 +45,6 @@ namespace Microsoft.Azure.Commands.DataFactories
             }
 
             ConfirmAction(
-                    Force.IsPresent,
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        Resources.DatasetConfirmationMessage,
-                        Name,
-                        DataFactoryName),
                     string.Format(
                         CultureInfo.InvariantCulture,
                         Resources.DatasetRemoving,

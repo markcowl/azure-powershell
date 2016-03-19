@@ -65,6 +65,7 @@ namespace Microsoft.Azure.Commands.DataFactories.Test.UnitTests
                 .Returns(rawJsonContent)
                 .Verifiable();
 
+            commandRuntimeMock.Setup((m) => m.ShouldProcess(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             dataFactoriesClientMock.Setup(
                 c =>
                     c.CreatePSPipeline(
@@ -116,6 +117,7 @@ namespace Microsoft.Azure.Commands.DataFactories.Test.UnitTests
                 .Returns(rawJsonContent)
                 .Verifiable();
 
+            commandRuntimeMock.Setup((m) => m.ShouldProcess(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             dataFactoriesClientMock.Setup(
                 c =>
                     c.CreatePSPipeline(

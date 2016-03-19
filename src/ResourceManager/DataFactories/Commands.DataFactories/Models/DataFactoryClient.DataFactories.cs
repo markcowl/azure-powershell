@@ -122,17 +122,8 @@ namespace Microsoft.Azure.Commands.DataFactories
                             parameters.Location, tags)) {ResourceGroupName = parameters.ResourceGroupName};
             };
 
-            if (parameters.Force)
-            {
-                // If user decides to overwrite anyway, then there is no need to check if the data factory exists or not.
-                createDataFactory();
-            }
-            else
-            {
-                bool dataFactoryExists = CheckDataFactoryExists(parameters.ResourceGroupName, parameters.DataFactoryName);
-
                 parameters.ConfirmAction(
-                    !dataFactoryExists,    // prompt only if the data factory exists
+                    parameters.Force,    // prompt only if the data factory exists
                     string.Format(
                         CultureInfo.InvariantCulture,
                         Resources.DataFactoryExists,
@@ -144,8 +135,8 @@ namespace Microsoft.Azure.Commands.DataFactories
                         parameters.DataFactoryName,
                         parameters.ResourceGroupName),
                     parameters.DataFactoryName,
-                    createDataFactory);
-            }
+                    createDataFactory,
+                    () => parameters.Force || CheckDataFactoryExists(parameters.ResourceGroupName, parameters.DataFactoryName));
 
             if (!DataFactoryCommonUtilities.IsSucceededProvisioningState(dataFactory.ProvisioningState))
             {

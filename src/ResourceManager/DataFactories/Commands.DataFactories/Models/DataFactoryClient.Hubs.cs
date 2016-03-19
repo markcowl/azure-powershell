@@ -64,8 +64,7 @@ namespace Microsoft.Azure.Commands.DataFactories
                             parameters.ResourceGroupName,
                             parameters.DataFactoryName,
                             parameters.Name,
-                            parameters.RawJsonContent))
-                    {DataFactoryName = parameters.DataFactoryName, ResourceGroupName = parameters.ResourceGroupName};
+                            parameters.RawJsonContent)) { DataFactoryName = parameters.DataFactoryName, ResourceGroupName = parameters.ResourceGroupName };
 
                 if (!DataFactoryCommonUtilities.IsSucceededProvisioningState(hub.ProvisioningState))
                 {
@@ -74,19 +73,8 @@ namespace Microsoft.Azure.Commands.DataFactories
                 }
             };
 
-            if (parameters.Force)
-            {
-                createHub();
-            }
-            else
-            {
-                bool hubExists = this.CheckHubExists(
-                    parameters.ResourceGroupName,
-                    parameters.DataFactoryName,
-                    parameters.Name);
-
-                parameters.ConfirmAction(
-                    !hubExists,
+            parameters.ConfirmAction(
+                    parameters.Force,
                     string.Format(
                         CultureInfo.InvariantCulture,
                         Resources.HubExists,
@@ -98,9 +86,9 @@ namespace Microsoft.Azure.Commands.DataFactories
                         parameters.Name,
                         parameters.DataFactoryName),
                     parameters.Name,
-                    createHub);
-            }
-
+                    createHub,
+                    () => parameters.Force || CheckHubExists(parameters.ResourceGroupName, parameters.DataFactoryName,
+                        parameters.Name));
             return hub;
         }
 

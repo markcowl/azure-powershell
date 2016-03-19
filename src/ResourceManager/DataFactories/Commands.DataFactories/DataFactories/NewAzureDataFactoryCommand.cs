@@ -19,7 +19,7 @@ using Microsoft.Azure.Commands.DataFactories.Models;
 
 namespace Microsoft.Azure.Commands.DataFactories
 {
-    [Cmdlet(VerbsCommon.New, Constants.DataFactory), OutputType(typeof(PSDataFactory))]
+    [Cmdlet(VerbsCommon.New, Constants.DataFactory, SupportsShouldProcess = true), OutputType(typeof(PSDataFactory))]
     public class NewAzureDataFactoryCommand : DataFactoryBaseCmdlet
     {
         [Parameter(Position = 1, Mandatory = true, ValueFromPipelineByPropertyName = true,
@@ -36,7 +36,7 @@ namespace Microsoft.Azure.Commands.DataFactories
             HelpMessage = "The tags of the data factory.")]
         public Hashtable Tags { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = "Don't ask for confirmation.")]
+        [Parameter(Mandatory = false, HelpMessage = "Overwrite an existing data factory.")]
         public SwitchParameter Force { get; set; }
 
         [EnvironmentPermission(SecurityAction.Demand, Unrestricted = true)]

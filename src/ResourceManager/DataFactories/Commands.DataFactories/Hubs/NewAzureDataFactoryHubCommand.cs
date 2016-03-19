@@ -21,7 +21,8 @@ using Microsoft.Azure.Commands.DataFactories.Properties;
 
 namespace Microsoft.Azure.Commands.DataFactories
 {
-    [Cmdlet(VerbsCommon.New, Constants.Hub, DefaultParameterSetName = ByFactoryName), OutputType(typeof(PSHub))]
+    [Cmdlet(VerbsCommon.New, Constants.Hub, DefaultParameterSetName = ByFactoryName, 
+        SupportsShouldProcess = true), OutputType(typeof(PSHub))]
     public class NewAzureDataFactoryHubCommand : HubContextBaseCmdlet
     {
         [Parameter(Position = 2, Mandatory = true, ValueFromPipelineByPropertyName = true,
@@ -33,7 +34,7 @@ namespace Microsoft.Azure.Commands.DataFactories
         [ValidateNotNullOrEmpty]
         public string File { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = "Don't ask for confirmation.")]
+        [Parameter(Mandatory = false, HelpMessage = "Overwrite existing hubs without prompting.")]
         public SwitchParameter Force { get; set; }
 
         [EnvironmentPermission(SecurityAction.Demand, Unrestricted = true)]

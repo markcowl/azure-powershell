@@ -57,6 +57,7 @@ namespace Microsoft.Azure.Commands.DataFactories.Test.UnitTests
                 Properties = new DataFactoryProperties() { ProvisioningState = "Succeeded" }
             };
 
+            commandRuntimeMock.Setup((m) => m.ShouldProcess(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             dataFactoriesClientMock.Setup(
                 f =>
                     f.CreatePSDataFactory(
@@ -103,6 +104,7 @@ namespace Microsoft.Azure.Commands.DataFactories.Test.UnitTests
                 Properties = new DataFactoryProperties() { ProvisioningState = "Failed" }
             };
 
+            commandRuntimeMock.Setup((m) => m.ShouldProcess(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
             dataFactoriesClientMock.Setup(
                 f =>
                     f.CreatePSDataFactory(
