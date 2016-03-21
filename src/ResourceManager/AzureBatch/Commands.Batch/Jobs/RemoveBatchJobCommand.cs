@@ -14,6 +14,7 @@
 
 using System.Management.Automation;
 using Microsoft.Azure.Commands.Batch.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 using Constants = Microsoft.Azure.Commands.Batch.Utils.Constants;
 
 namespace Microsoft.Azure.Commands.Batch
@@ -29,12 +30,11 @@ namespace Microsoft.Azure.Commands.Batch
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
                 Resources.RemoveJob,
                 this.Id,

@@ -23,6 +23,7 @@ using System.Management.Automation;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets.DataSource
 {
@@ -43,14 +44,13 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets.DataSource
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         private bool DeleteBackupData;
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
                 Resources.DisableProtectionMessage,
                 Item.Name,

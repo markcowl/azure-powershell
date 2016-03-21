@@ -20,6 +20,7 @@ using System.Linq;
 using Microsoft.Azure.Management.BackupServices.Models;
 using Microsoft.Azure.Commands.AzureBackup.Models;
 using Microsoft.Azure.Commands.AzureBackup.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets
 {
@@ -32,12 +33,11 @@ namespace Microsoft.Azure.Commands.AzureBackup.Cmdlets
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
                Resources.RemoveProtectionPolicyMessage,
                ProtectionPolicy.Name, () =>

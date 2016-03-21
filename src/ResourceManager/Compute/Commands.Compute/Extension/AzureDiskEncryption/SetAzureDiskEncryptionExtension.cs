@@ -24,6 +24,7 @@ using System.Globalization;
 using AutoMapper;
 using Microsoft.Azure.Commands.Compute.Extension.AzureVMBackup;
 using Microsoft.Rest.Azure;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
 {
@@ -175,7 +176,7 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         private string currentOSType = null;
@@ -408,7 +409,6 @@ namespace Microsoft.Azure.Commands.Compute.Extension.AzureDiskEncryption
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             base.ExecuteCmdlet();
 
             ExecuteClientAction(() =>

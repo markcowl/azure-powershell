@@ -19,6 +19,7 @@ using System;
 using System.Management.Automation;
 using Constants = Microsoft.Azure.Commands.Batch.Utils.Constants;
 using Microsoft.Azure.Commands.Batch.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.Batch
 {
@@ -60,12 +61,11 @@ namespace Microsoft.Azure.Commands.Batch
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             string fileName = this.InputObject == null ? this.Name : this.InputObject.Name;
             NodeFileOperationParameters parameters = new NodeFileOperationParameters(this.BatchContext, this.JobId, this.TaskId, this.PoolId,
                 this.ComputeNodeId, this.Name, this.InputObject, this.AdditionalBehaviors);

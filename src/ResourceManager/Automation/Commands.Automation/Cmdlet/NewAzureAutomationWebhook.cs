@@ -68,6 +68,7 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
             HelpMessage = "The Runbook parameters name/value.")]
         public IDictionary Parameters { get; set; }
 
+        [Deprecated]
         [Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
@@ -77,7 +78,6 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
-            CheckForDeprecationWarning("Force", Force);
             this.ConfirmAction(
                 string.Format(Resources.WebhookOneTimeURL, "Webhook"),
                 Name,

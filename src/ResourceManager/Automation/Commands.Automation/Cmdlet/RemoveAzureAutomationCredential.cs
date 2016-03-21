@@ -19,6 +19,7 @@ using System.Security.Permissions;
 using Microsoft.Azure.Commands.Automation.Model;
 using Microsoft.Azure.Commands.Automation.Common;
 using Microsoft.Azure.Commands.Automation.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.Automation.Cmdlet
 {
@@ -40,7 +41,7 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
          /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
        /// <summary>
@@ -49,7 +50,6 @@ namespace Microsoft.Azure.Commands.Automation.Cmdlet
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         protected override void AutomationProcessRecord()
         {
-            CheckForDeprecationWarning("Force", Force);
             ConfirmAction(
                        string.Format(Resources.RemoveAzureAutomationResourceDescription, "Credential"),
                        Name,

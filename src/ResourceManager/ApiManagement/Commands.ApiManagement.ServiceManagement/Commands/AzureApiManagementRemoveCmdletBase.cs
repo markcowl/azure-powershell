@@ -11,6 +11,9 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+
+using Microsoft.WindowsAzure.Commands.Common;
+
 namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
 {
     using System.Management.Automation;
@@ -27,13 +30,12 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
         public abstract string ActionWarning { get; }
 
         public abstract string ActionDescription { get; }
-        [Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
 
         public override void ExecuteApiManagementCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             if (ShouldProcess(
                     ActionDescription,
                     ActionWarning,

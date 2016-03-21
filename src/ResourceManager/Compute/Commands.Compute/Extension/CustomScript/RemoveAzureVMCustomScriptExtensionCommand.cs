@@ -17,6 +17,7 @@ using Microsoft.Azure.Management.Compute;
 using System.Management.Automation;
 using AutoMapper;
 using Microsoft.Azure.Commands.Compute.Models;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.Compute
 {
@@ -55,12 +56,11 @@ namespace Microsoft.Azure.Commands.Compute
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             base.ExecuteCmdlet();
 
             ExecuteClientAction(() =>

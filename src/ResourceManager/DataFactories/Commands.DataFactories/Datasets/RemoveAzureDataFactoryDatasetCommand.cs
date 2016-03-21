@@ -17,6 +17,7 @@ using System.Management.Automation;
 using System.Net;
 using System.Security.Permissions;
 using Microsoft.Azure.Commands.DataFactories.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.DataFactories
 {
@@ -26,13 +27,12 @@ namespace Microsoft.Azure.Commands.DataFactories
         /// <summary>
         /// Force parameter included for backward compatibility, deprecated, remove references to this parameter in scripts
         /// </summary>
-        [Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory = false, HelpMessage = "Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         [EnvironmentPermission(SecurityAction.Demand, Unrestricted = true)]
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             if (ParameterSetName == ByFactoryObject)
             {
                 if (DataFactory == null)

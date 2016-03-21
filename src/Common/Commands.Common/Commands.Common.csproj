@@ -142,6 +142,7 @@
     <Compile Include="ConcurrentQueueExtensions.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContextExtensions.cs" />
+    <Compile Include="DeprecatedAttribute.cs" />
     <Compile Include="IFileSystem.cs" />
     <Compile Include="IProfileProvider.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

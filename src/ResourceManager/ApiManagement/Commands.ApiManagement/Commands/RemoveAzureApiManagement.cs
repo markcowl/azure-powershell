@@ -12,6 +12,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+using Microsoft.WindowsAzure.Commands.Common;
+
 namespace Microsoft.Azure.Commands.ApiManagement.Commands
 {
     using System.Globalization;
@@ -35,6 +37,7 @@ namespace Microsoft.Azure.Commands.ApiManagement.Commands
         [ValidateNotNullOrEmpty]
         public string Name { get; set; }
 
+        [Deprecated]
         [Parameter(Mandatory = false, HelpMessage = "Delete the ApiManagement service under any circumstances, skipping all prompts")]
         public SwitchParameter Force { get; set; }
 
@@ -43,7 +46,6 @@ namespace Microsoft.Azure.Commands.ApiManagement.Commands
 
         public override void ExecuteCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             var actionDescription = string.Format(
                     CultureInfo.CurrentCulture,
                     Resources.RemoveAzureApiManagementDescription,

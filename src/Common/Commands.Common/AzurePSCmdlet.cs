@@ -89,12 +89,24 @@ namespace Microsoft.WindowsAzure.Commands.Utilities.Common
             });
         }
 
-        protected void CheckForDeprecationWarning(string parameterName, SwitchParameter parameterValue)
+        protected void CheckForDeprecationWarning()
         {
-            if (parameterValue.IsPresent)
+            foreach (var property in DeprecatedAttribute.GetDeprecatedProperties(GetType()))
             {
-                WriteWarning(string.Format(Resources.ParameterDeprecationWarning, parameterName));
+                if (MyInvocation.BoundParameters.ContainsKey(property.Name))
+                {
+                    PrintDeprecationWarning(property.Name);
+                }
             }
+        }
+
+        /// <summary>
+        /// Print a deprecation warning for the given parameter
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter.</param>
+        public void PrintDeprecationWarning(string parameterName)
+        {
+            WriteWarning(string.Format(Resources.ParameterDeprecationWarning, parameterName));
         }
         /// <summary>
         /// Initialize the data collection profile
@@ -611,6 +623,7 @@ namespace Microsoft.WindowsAzure.Commands.Utilities.Common
             try
             {
                 base.ProcessRecord();
+                CheckForDeprecationWarning();
                 ExecuteCmdlet();
             }
             catch (Exception ex)

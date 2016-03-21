@@ -12,6 +12,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+using Microsoft.WindowsAzure.Commands.Common;
+
 namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
 {
     using System;
@@ -38,7 +40,7 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
         [ValidateNotNullOrEmpty]
         public String ApiId { get; set; }
 
-        [Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
+        [Deprecated, Parameter(Mandatory=false, HelpMessage="Deprecated, this parameter will be removed in a future release")]
         public SwitchParameter Force { get; set; }
 
         [Parameter(
@@ -49,7 +51,6 @@ namespace Microsoft.Azure.Commands.ApiManagement.ServiceManagement.Commands
 
         public override void ExecuteApiManagementCmdlet()
         {
-            CheckForDeprecationWarning("Force", Force);
             var actionDescription = string.Format(CultureInfo.CurrentCulture, Resources.ApiRemoveDescription, ApiId);
             var actionWarning = string.Format(CultureInfo.CurrentCulture, Resources.ApiRemoveWarning, ApiId);
 
