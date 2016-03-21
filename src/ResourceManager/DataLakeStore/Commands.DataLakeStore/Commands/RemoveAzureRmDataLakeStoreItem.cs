@@ -16,10 +16,12 @@ using System.Management.Automation;
 using Microsoft.Azure.Commands.DataLakeStore.Models;
 using Microsoft.Azure.Commands.DataLakeStore.Properties;
 using Microsoft.Azure.Management.DataLake.Store.Models;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeStoreItem"), OutputType(typeof (bool))]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeStoreItem", SupportsShouldProcess = true), 
+    OutputType(typeof (bool))]
     public class RemoveAzureDataLakeStoreItem : DataLakeStoreFileSystemCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -44,7 +46,7 @@ namespace Microsoft.Azure.Commands.DataLakeStore
                 "Indicates the user wants to remove all of the contents of the folder, but not the folder itself")]
         public SwitchParameter Clean { get; set; }
 
-        [Parameter(ValueFromPipelineByPropertyName = true, Position = 4, Mandatory = false,
+        [Deprecated, Parameter(ValueFromPipelineByPropertyName = true, Position = 4, Mandatory = false,
             HelpMessage =
                 "Indicates the delete should be immediately performed with no confirmation or prompting. Use carefully."
             )]
@@ -71,15 +73,18 @@ namespace Microsoft.Azure.Commands.DataLakeStore
                     string.Format(Resources.RemoveDataLakeStoreItem, path.OriginalPath),
                     path.OriginalPath,
                     () =>
+                    {
                         success[0] =
-                            success[0] && DataLakeStoreFileSystemClient.DeleteFileOrFolder(path.TransformedPath, Account,
-                                Recurse));
+                            success[0] &&
+                            DataLakeStoreFileSystemClient.DeleteFileOrFolder(path.TransformedPath, Account,
+                                Recurse);
 
-                if (pathExists && testClean == FileType.Directory && Clean)
-                {
-                    // recreate the directory as an empty directory if clean was specified.
-                    DataLakeStoreFileSystemClient.CreateDirectory(path.TransformedPath, Account);
-                }
+                        if (pathExists && testClean == FileType.Directory && Clean)
+                        {
+                            // recreate the directory as an empty directory if clean was specified.
+                            DataLakeStoreFileSystemClient.CreateDirectory(path.TransformedPath, Account);
+                        }
+                    });
             }
 
             if (PassThru)

@@ -16,10 +16,12 @@ using System;
 using System.Management.Automation;
 using Microsoft.Azure.Commands.DataLakeStore.Models;
 using Microsoft.Azure.Commands.DataLakeStore.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsCommon.Set, "AzureRmDataLakeStoreItemOwner"), OutputType(typeof (bool))]
+    [Cmdlet(VerbsCommon.Set, "AzureRmDataLakeStoreItemOwner", SupportsShouldProcess = true),
+    OutputType(typeof(bool))]
     public class SetAzureDataLakeStoreItemOwner : DataLakeStoreFileSystemCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -46,7 +48,7 @@ namespace Microsoft.Azure.Commands.DataLakeStore
         [ValidateNotNull]
         public Guid Id { get; set; }
 
-        [Parameter(ValueFromPipelineByPropertyName = true, Position = 4, Mandatory = false,
+        [Deprecated, Parameter(ValueFromPipelineByPropertyName = true, Position = 4, Mandatory = false,
             HelpMessage =
                 "Indicates that the ACL should be replaced on the file with the specified ACL without prompting.")]
         public SwitchParameter Force { get; set; }
@@ -67,20 +69,11 @@ namespace Microsoft.Azure.Commands.DataLakeStore
                 user = Id.ToString();
             }
 
-            if (!Force.IsPresent)
-            {
-                ConfirmAction(
-                    Force.IsPresent,
-                    string.Format(Resources.SettingDataLakeStoreItemOwner, Path.OriginalPath),
-                    string.Format(Resources.SetDataLakeStoreItemOwner, Path.OriginalPath),
-                    Path.OriginalPath,
-                    () =>
-                        DataLakeStoreFileSystemClient.SetOwner(Path.TransformedPath, Account, user, group));
-            }
-            else
-            {
-                DataLakeStoreFileSystemClient.SetOwner(Path.TransformedPath, Account, user, group);
-            }
+            ConfirmAction(
+                string.Format(Resources.SetDataLakeStoreItemOwner, Path.OriginalPath),
+                Path.OriginalPath,
+                () =>
+                    DataLakeStoreFileSystemClient.SetOwner(Path.TransformedPath, Account, user, group));
         }
     }
 }

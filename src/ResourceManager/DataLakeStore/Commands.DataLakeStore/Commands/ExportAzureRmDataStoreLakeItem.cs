@@ -12,6 +12,7 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------------
 
+using System.IO;
 using System.Management.Automation;
 using Microsoft.Azure.Commands.DataLakeStore.Models;
 using Microsoft.Azure.Commands.DataLakeStore.Properties;
@@ -20,7 +21,7 @@ using Microsoft.Rest.Azure;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsData.Export, "AzureRmDataLakeStoreItem"), OutputType(typeof (string))]
+    [Cmdlet(VerbsData.Export, "AzureRmDataLakeStoreItem", SupportsShouldProcess = true), OutputType(typeof (string))]
     public class ExportAzureDataLakeStoreItem : DataLakeStoreFileSystemCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -57,8 +58,17 @@ namespace Microsoft.Azure.Commands.DataLakeStore
                 throw new CloudException(string.Format(Resources.InvalidExportPathType, Path.TransformedPath));
             }
 
-            DataLakeStoreFileSystemClient.DownloadFile(Path.TransformedPath, Account, powerShellReadyPath, CmdletCancellationToken,
-                Force, this);
+            ConfirmAction(
+                Force.IsPresent,
+                string.Format("Are you sure you want to overwrite file {0}?", powerShellReadyPath),
+                string.Format("Downloading File in DataLakeStore Store Location: {0} " +
+                              "to destination path: {1}", Path.TransformedPath, powerShellReadyPath),
+                powerShellReadyPath,
+                () => DataLakeStoreFileSystemClient.DownloadFile(Path.TransformedPath, Account, 
+                    powerShellReadyPath,
+                    CmdletCancellationToken,
+                    Force, this),
+                () => File.Exists(powerShellReadyPath));
 
             WriteObject(powerShellReadyPath);
         }

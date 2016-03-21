@@ -15,10 +15,12 @@
 using System.Management.Automation;
 using Microsoft.Azure.Commands.DataLakeStore.Models;
 using Microsoft.Azure.Commands.DataLakeStore.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeStoreItemAcl"), OutputType(typeof (bool))]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeStoreItemAcl", SupportsShouldProcess = true), 
+    OutputType(typeof (bool))]
     public class RemoveAzureDataLakeStoreItemAcl : DataLakeStoreFileSystemCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -41,19 +43,14 @@ namespace Microsoft.Azure.Commands.DataLakeStore
             )]
         public SwitchParameter Default { get; set; }
 
-        [Parameter(ValueFromPipelineByPropertyName = true, Position = 3, Mandatory = false,
+        [Deprecated, Parameter(ValueFromPipelineByPropertyName = true, Position = 3, Mandatory = false,
             HelpMessage =
                 "Indicates that the ACL should be removed on the file with the specified ACL without prompting.")]
         public SwitchParameter Force { get; set; }
 
         public override void ExecuteCmdlet()
         {
-            if (!Force.IsPresent)
-            {
                 ConfirmAction(
-                    Force.IsPresent,
-                    string.Format(Resources.RemovingDataLakeStoreItemAcl,
-                        Default ? Resources.DefaultAclWord : string.Empty, Path.OriginalPath),
                     string.Format(Resources.RemoveDataLakeStoreItemAcl,
                         Default ? Resources.DefaultAclWord : string.Empty, Path.OriginalPath),
                     Path.OriginalPath,
@@ -68,18 +65,6 @@ namespace Microsoft.Azure.Commands.DataLakeStore
                             DataLakeStoreFileSystemClient.RemoveAcl(Path.TransformedPath, Account);
                         }
                     });
-            }
-            else
-            {
-                if (Default)
-                {
-                    DataLakeStoreFileSystemClient.RemoveDefaultAcl(Path.TransformedPath, Account);
-                }
-                else
-                {
-                    DataLakeStoreFileSystemClient.RemoveAcl(Path.TransformedPath, Account);
-                }
-            }
         }
     }
 }

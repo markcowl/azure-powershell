@@ -16,10 +16,11 @@ using System;
 using System.Management.Automation;
 using Microsoft.Azure.Commands.DataLakeAnalytics.Models;
 using Microsoft.Azure.Commands.DataLakeAnalytics.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.DataLakeAnalytics
 {
-    [Cmdlet(VerbsLifecycle.Stop, "AzureRmDataLakeAnalyticsJob")]
+    [Cmdlet(VerbsLifecycle.Stop, "AzureRmDataLakeAnalyticsJob", SupportsShouldProcess = true)]
     public class StopAzureDataLakeAnalyticsJobInfo : DataLakeAnalyticsCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -33,7 +34,7 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
         [ValidateNotNullOrEmpty]
         public Guid JobId { get; set; }
 
-        [Parameter(ValueFromPipelineByPropertyName = true, Position = 2, Mandatory = false,
+        [Deprecated, Parameter(ValueFromPipelineByPropertyName = true, Position = 2, Mandatory = false,
             HelpMessage = "Indicates that the job should be forcibly stopped.")]
         [ValidateNotNullOrEmpty]
         public SwitchParameter Force { get; set; }
@@ -44,8 +45,6 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
         public override void ExecuteCmdlet()
         {
             ConfirmAction(
-                Force.IsPresent,
-                string.Format(Resources.StoppingDataLakeAnalyticsJob, JobId),
                 string.Format(Resources.StopDataLakeAnalyticsJob, JobId),
                 JobId.ToString(),
                 () => DataLakeAnalyticsClient.CancelJob(Account, JobId));

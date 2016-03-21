@@ -16,10 +16,12 @@ using System;
 using System.Management.Automation;
 using Microsoft.Azure.Commands.DataLakeAnalytics.Models;
 using Microsoft.Azure.Commands.DataLakeAnalytics.Properties;
+using Microsoft.WindowsAzure.Commands.Common;
 
 namespace Microsoft.Azure.Commands.DataLakeAnalytics
 {
-    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeAnalyticsDataSource"), OutputType(typeof(bool))]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeAnalyticsDataSource", 
+        SupportsShouldProcess = true), OutputType(typeof(bool))]
     public class RemoveAzureDataLakeAnalyticsDataSource : DataLakeAnalyticsCmdletBase
     {
         internal const string DataLakeParameterSetName = "Remove a Data Lake storage account";
@@ -46,6 +48,7 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
         [Alias("AzureBlob")]
         public string Blob { get; set; }
 
+        [Deprecated]
         [Parameter(Mandatory = false, Position = 2, ParameterSetName = DataLakeParameterSetName, HelpMessage = "Do not ask for confirmation.")]
         [Parameter(Mandatory = false, Position = 2, ParameterSetName = BlobParameterSetName, HelpMessage = "Do not ask for confirmation.")]
         public SwitchParameter Force { get; set; }
@@ -70,8 +73,6 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
             if (ParameterSetName.Equals(DataLakeParameterSetName, StringComparison.InvariantCultureIgnoreCase))
             {
                 ConfirmAction(
-                    Force.IsPresent,
-                    string.Format(Resources.RemovingDataLakeAnalyticsDataLakeStore, DataLakeStore),
                     string.Format(Resources.RemoveDataLakeAnalyticsCatalogSecret, DataLakeStore),
                     DataLakeStore,
                     () => DataLakeAnalyticsClient.RemoveDataLakeStoreAccount(ResourceGroupName, Account, DataLakeStore));
@@ -80,8 +81,6 @@ namespace Microsoft.Azure.Commands.DataLakeAnalytics
             else
             {
                 ConfirmAction(
-                    Force.IsPresent,
-                    string.Format(Resources.RemovingDataLakeAnalyticsBlobAccount, Blob),
                     string.Format(Resources.RemoveDataLakeAnalyticsBlobAccount, Blob),
                     Blob,
                     () => DataLakeAnalyticsClient.RemoveStorageAccount(ResourceGroupName, Account, Blob));

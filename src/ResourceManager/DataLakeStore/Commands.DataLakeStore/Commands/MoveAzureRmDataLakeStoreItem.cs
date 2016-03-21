@@ -20,7 +20,7 @@ using Microsoft.Rest.Azure;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsCommon.Move, "AzureRmDataLakeStoreItem"), OutputType(typeof (string))]
+    [Cmdlet(VerbsCommon.Move, "AzureRmDataLakeStoreItem", SupportsShouldProcess = true), OutputType(typeof (string))]
     public class MoveAzureDataLakeStoreItem : DataLakeStoreFileSystemCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -51,20 +51,28 @@ namespace Microsoft.Azure.Commands.DataLakeStore
         public override void ExecuteCmdlet()
         {
             FileType fileType;
-            if (Force &&
-                DataLakeStoreFileSystemClient.TestFileOrFolderExistence(Destination.TransformedPath, Account,
-                    out fileType))
-            {
-                DataLakeStoreFileSystemClient.DeleteFileOrFolder(Destination.TransformedPath, Account, true);
-            }
+            ConfirmAction(
+                "Moving Items",
+                Destination.OriginalPath,
+                () =>
+                {
+                    if (Force &&
+                        DataLakeStoreFileSystemClient.TestFileOrFolderExistence(Destination.TransformedPath, Account,
+                            out fileType))
+                    {
+                        DataLakeStoreFileSystemClient.DeleteFileOrFolder(Destination.TransformedPath, Account, true);
+                    }
 
-            if (!DataLakeStoreFileSystemClient.RenameFileOrDirectory(Path.TransformedPath, Account, Destination.TransformedPath))
-            {
-                throw new CloudException(
-                    string.Format(Resources.MoveFailed, Path.OriginalPath, Destination.OriginalPath));
-            }
+                    if (
+                        !DataLakeStoreFileSystemClient.RenameFileOrDirectory(Path.TransformedPath, Account,
+                            Destination.TransformedPath))
+                    {
+                        throw new CloudException(
+                            string.Format(Resources.MoveFailed, Path.OriginalPath, Destination.OriginalPath));
+                    }
 
-            WriteObject(Destination.OriginalPath);
+                    WriteObject(Destination.OriginalPath);
+                });
         }
     }
 }

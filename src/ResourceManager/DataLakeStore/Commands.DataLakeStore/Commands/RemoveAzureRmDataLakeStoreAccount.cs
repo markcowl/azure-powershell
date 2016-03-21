@@ -18,7 +18,8 @@ using Microsoft.Azure.Commands.DataLakeStore.Properties;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeStoreAccount"), OutputType(typeof (bool))]
+    [Cmdlet(VerbsCommon.Remove, "AzureRmDataLakeStoreAccount", SupportsShouldProcess = true), 
+    OutputType(typeof(bool))]
     public class RemoveAzureDataLakeStoreAccount : DataLakeStoreCmdletBase
     {
         [Parameter(ValueFromPipelineByPropertyName = true, Position = 0, Mandatory = true,
@@ -39,20 +40,12 @@ namespace Microsoft.Azure.Commands.DataLakeStore
 
         public override void ExecuteCmdlet()
         {
-            if (!Force.IsPresent)
-            {
-                ConfirmAction(
-                    Force.IsPresent,
-                    string.Format(Resources.RemovingDataLakeStoreAccount, Name),
-                    string.Format(Resources.RemoveDataLakeStoreAccount, Name),
-                    Name,
-                    () => DataLakeStoreClient.DeleteAccount(ResourceGroupName, Name));
-            }
-            else
-            {
-                DataLakeStoreClient.DeleteAccount(ResourceGroupName, Name);
-            }
-
+            ConfirmAction(
+                Force.IsPresent,
+                string.Format(Resources.RemovingDataLakeStoreAccount, Name),
+                string.Format(Resources.RemoveDataLakeStoreAccount, Name),
+                Name,
+                () => DataLakeStoreClient.DeleteAccount(ResourceGroupName, Name));
             if (PassThru)
             {
                 WriteObject(true);

@@ -19,7 +19,8 @@ using Microsoft.Azure.Commands.DataLakeStore.Properties;
 
 namespace Microsoft.Azure.Commands.DataLakeStore
 {
-    [Cmdlet(VerbsData.Import, "AzureRmDataLakeStoreItem"), OutputType(typeof (string))]
+    [Cmdlet(VerbsData.Import, "AzureRmDataLakeStoreItem", SupportsShouldProcess = true),
+    OutputType(typeof(string))]
     public class ImportAzureDataLakeStoreItem : DataLakeStoreFileSystemCmdletBase
     {
         // default number of threads
@@ -78,29 +79,35 @@ namespace Microsoft.Azure.Commands.DataLakeStore
 
             if (Directory.Exists(powerShellSourcePath))
             {
-                DataLakeStoreFileSystemClient.CopyDirectory(
-                    Destination.TransformedPath,
-                    Account,
+                ConfirmAction(
+                    "Importing directory",
                     powerShellSourcePath,
-                    CmdletCancellationToken,
-                    NumThreads,
-                    -1,
-                    Recurse,
-                    Force,
-                    Resume, ForceBinary, ForceBinary, this);
+                    () => DataLakeStoreFileSystemClient.CopyDirectory(
+                        Destination.TransformedPath,
+                        Account,
+                        powerShellSourcePath,
+                        CmdletCancellationToken,
+                        NumThreads,
+                        -1,
+                        Recurse,
+                        Force,
+                        Resume, ForceBinary, ForceBinary, this));
             }
             else if (File.Exists(powerShellSourcePath))
             {
-                DataLakeStoreFileSystemClient.CopyFile(
-                    Destination.TransformedPath,
-                    Account,
+                ConfirmAction(
+                    "Importing file",
                     powerShellSourcePath,
-                    CmdletCancellationToken,
-                    NumThreads,
-                    Force,
-                    Resume,
-                    ForceBinary,
-                    this);
+                    () => DataLakeStoreFileSystemClient.CopyFile(
+                        Destination.TransformedPath,
+                        Account,
+                        powerShellSourcePath,
+                        CmdletCancellationToken,
+                        NumThreads,
+                        Force,
+                        Resume,
+                        ForceBinary,
+                        this));
             }
             else
             {
