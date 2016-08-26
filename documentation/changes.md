@@ -2,7 +2,7 @@
 
 Customers and MVPs have told us that breaking changes are a problem in Azure PowerShell releases.  These changes cause a burden on users maintaining scripts to manage their Azure assets, and this causes reluctance in picking up the later versions of Azure PowerShell. It is clear that continuing, unmanaged breaking changes are unnacceptable to customers. 
 
-**To address customer concerns, Azure PowerShell is committing to using strict semver rules for breaking changes, introducing a new policy on breaking change notification and codumentation, and to treat any unplanned breaking change that ships outside this policy as a showstopper bug requiring a hotfix**.
+**To address customer concerns, Azure PowerShell is committing to using strict semver rules for breaking changes, introducing a new policy on breaking change notification and documentation, and to treat any unplanned breaking change that ships outside this policy as a showstopper bug requiring a hotfix**.
 
 At the same time, we are introducing a new mechanism for [Pre-release AzureRM modules](#preview-modules).  This is detailed in the section [here](#preview-modules).
 
