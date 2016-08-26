@@ -51,6 +51,7 @@ Breaking changes in cmdlets are defined as follows:
     - Changing a cmdlet name without an alias to the original name
     - Removing or changing a cmdlet alias
     - Removing a Cmdlet attribute option (SupportShouldProcess, SupportsPaging)
+    - Increasing the ConfirmImpact of a cmdlet
     - Breaking change in OutputType or removal of OutputType attribute
   - Parameters
     - Removing a parameter
@@ -61,6 +62,7 @@ Breaking changes in cmdlets are defined as follows:
     - Removing or changing a parameter alias
     - Removing or changing existing parameter attribute values
     - Making parameter validation more exclusive (for example: removing values from a ValidateSet)
+    - Changing the default value of a parameter
   - Output and Parameter Types
     - Changing property names without an accompanying alias to the original name
     - Removing properties
