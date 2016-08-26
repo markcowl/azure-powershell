@@ -24,7 +24,7 @@ This proposed policy is meant to apply to all stable Azure modules, starting wit
 ### Exceptions
 The majority of cmdlet enhancement and fixes should not require immediate breaking changes.  However, to accomodate extraordinary circumstances, exceptions to the breaking change policy can be made for the following reasons:
 - High impact security bugs, data loss, or other severe functionality issues that can only be resolved through a breaking change
-- Important fixes athat require a breaking change, for which usage data or extensive customer outreach shows extremely low impact on customer scripts
+- Important fixes that require a breaking change, for which usage data or extensive customer outreach shows extremely low impact on customer scripts.  In this case, notification must still occur, but the notification period may be shortened on a case by case basis.
 
 ##  Preview Modules
 
