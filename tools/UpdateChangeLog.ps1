@@ -37,7 +37,7 @@ function UpdateServiceChangeLog([string]$PathToChangeLog, [string]$ModuleVersion
     {
         # If we have found the "Current Release" section, update the section title,
         # add the new "Current Release" section, update the buffer, and switch the $found variable
-        if ($content[$idx] -eq "## Current Release")
+        if (($content[$idx] -ne $null) -and ($content[$idx].StartsWith("## Current Release")))
         {
             $content[$idx] = "## Version $ModuleVersion"
             $found = $True
