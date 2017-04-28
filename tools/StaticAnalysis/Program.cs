@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace StaticAnalysis
 {
@@ -46,7 +47,7 @@ namespace StaticAnalysis
                 Path.Combine(installDir, @"ResourceManager\AzureResourceManager\"),
                 Path.Combine(installDir, @"ServiceManagement\Azure\"),
                 Path.Combine(installDir, @"Storage\")
-           };
+           }.Where(d => Directory.Exists(d));
 
             var reportsDirectory = Directory.GetCurrentDirectory();
             bool logReportsDirectoryWarning = true;

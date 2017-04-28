@@ -19,6 +19,7 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Markdown.MAML.Model.MAML;
 using StaticAnalysis.help;
 
 namespace StaticAnalysis.HelpAnalyzer
@@ -30,9 +31,9 @@ namespace StaticAnalysis.HelpAnalyzer
         /// </summary>
         /// <param name="assemblyPath"></param>
         /// <returns></returns>
-        public IList<CmdletHelpMetadata> GetCmdlets(string assemblyPath)
+        public IList<MamlCommand> GetCmdlets(string assemblyPath)
         {
-            IList<CmdletHelpMetadata> result = new List<CmdletHelpMetadata>();
+            IList<MamlCommand> result = new List<MamlCommand>();
             try
             {
                 var assembly = Assembly.LoadFrom(assemblyPath);
@@ -40,11 +41,7 @@ namespace StaticAnalysis.HelpAnalyzer
                 {
                     var cmdlet = type.GetAttribute<CmdletAttribute>();
                     result.Add(
-                        new CmdletHelpMetadata
-                    {
-                        ClassName = type.FullName,
-                        CmdletName = string.Format("{0}-{1}", cmdlet.VerbName, cmdlet.NounName)
-                    });
+                        CmdletHelpMetadata.GetMamlCommand(type, cmdlet));
                 }
             }
             catch

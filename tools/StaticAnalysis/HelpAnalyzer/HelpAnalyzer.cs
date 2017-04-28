@@ -13,9 +13,14 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Parser;
+using Markdown.MAML.Renderer;
+using Markdown.MAML.Transformer;
 
 namespace StaticAnalysis.HelpAnalyzer
 {
@@ -49,17 +54,17 @@ namespace StaticAnalysis.HelpAnalyzer
                 foreach (var directory in Directory.EnumerateDirectories(Path.GetFullPath(baseDirectory)))
                 {
                     var helpFiles = Directory.EnumerateFiles(directory, "*.dll-Help.xml")
-                        .Where(f => !processedHelpFiles.Contains(Path.GetFileName(f), 
+                        .Where(f => !processedHelpFiles.Contains(Path.GetFileName(f),
                             StringComparer.OrdinalIgnoreCase)).ToList();
                     if (helpFiles.Any())
                     {
                         Directory.SetCurrentDirectory(directory);
                         foreach (var helpFile in helpFiles)
                         {
-                           var cmdletFile = helpFile.Substring(0, helpFile.Length - "-Help.xml".Length);
+                            var cmdletFile = helpFile.Substring(0, helpFile.Length - "-Help.xml".Length);
                             var helpFileName = Path.GetFileName(helpFile);
                             var cmdletFileName = Path.GetFileName(cmdletFile);
-                            if (File.Exists(cmdletFile) )
+                            if (File.Exists(cmdletFile))
                             {
                                 processedHelpFiles.Add(helpFileName);
                                 helpLogger.Decorator.AddDecorator((h) =>
@@ -69,6 +74,12 @@ namespace StaticAnalysis.HelpAnalyzer
                                 }, "Cmdlet");
                                 var proxy = EnvironmentHelpers.CreateProxy<CmdletLoader>(directory, out _appDomain);
                                 var cmdlets = proxy.GetCmdlets(cmdletFile);
+                                IList<MamlCommand> markdownHelp = GetMarkdownHelp(Path.Combine(directory, "help"));
+                                if (markdownHelp != null)
+                                {
+                                    IList<MamlCommand> combinedHelp = CombineHelp(cmdlets, markdownHelp);
+                                    WriteMamlHelp(combinedHelp, helpFile);
+                                }
                                 var helpRecords = CmdletHelpParser.GetHelpTopics(helpFile, helpLogger);
                                 ValidateHelpRecords(cmdlets, helpRecords, helpLogger);
                                 helpLogger.Decorator.Remove("Cmdlet");
@@ -82,23 +93,104 @@ namespace StaticAnalysis.HelpAnalyzer
             }
         }
 
-        private void ValidateHelpRecords(IList<CmdletHelpMetadata> cmdlets, IList<string> helpRecords, 
+        private void WriteMamlHelp(IList<MamlCommand> combinedHelp, string helpFile)
+        {
+            if (combinedHelp != null && combinedHelp.Count > 0)
+            {
+                var renderer = new MamlRenderer();
+                File.WriteAllText(helpFile, renderer.MamlModelToString(combinedHelp));
+                Logger.WriteMessage("Writing new help file {0}", helpFile);
+            }
+        }
+
+        private IList<MamlCommand> CombineHelp(IList<MamlCommand> cmdlets, IList<MamlCommand> markdownHelp)
+        {
+            foreach (var cmdlet in cmdlets)
+            {
+                var matchingHelp =
+                    markdownHelp.FirstOrDefault(
+                        h => string.Equals(cmdlet.Name, h.Name, StringComparison.OrdinalIgnoreCase));
+                if (matchingHelp != null)
+                {
+                    cmdlet.Description = matchingHelp.Description;
+                    cmdlet.Examples.AddRange(matchingHelp.Examples);
+                    cmdlet.Extent = matchingHelp.Extent;
+                    cmdlet.Links.AddRange(matchingHelp.Links);
+                    cmdlet.Notes = matchingHelp.Notes;
+                    cmdlet.Synopsis = matchingHelp.Synopsis;
+                    MergeCmdletParametersAndSyntax(cmdlet, matchingHelp);
+                }
+                else
+                {
+                    Logger.WriteError("Could not find matching Markdown help for cmdlet {0}", cmdlet.Name);
+                }
+            }
+
+            return cmdlets;
+        }
+
+        private void MergeCmdletParametersAndSyntax(MamlCommand cmdlet, MamlCommand matchingHelp)
+        {
+            foreach (var parameter in matchingHelp.Parameters)
+            {
+                if (cmdlet.Syntax.SelectMany(s => s.Parameters)
+                        .Any(p => string.Equals(p.Name, parameter.Name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    foreach (var matchingParameter in
+                       cmdlet.Syntax.SelectMany(s => s.Parameters)
+                           .Where(p => string.Equals(p.Name, parameter.Name, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        matchingParameter.Description = parameter.Description;
+                        matchingParameter.Extent = parameter.Extent;
+                        matchingParameter.AttributesText = parameter.AttributesText;
+                    }
+                }
+                else
+                {
+                    Logger.WriteError("Cmdlet{0}: Unable to find matching parameter {1}", cmdlet.Name, parameter.Name);
+                }
+            }
+        }
+
+        private IList<MamlCommand> GetMarkdownHelp(string directoryPath)
+        {
+            List<MamlCommand> result = null;
+            if (Directory.Exists(directoryPath))
+            {
+                result = new List<MamlCommand>();
+                foreach (var filePath in Directory.GetFiles(directoryPath))
+                {
+                    var parser = new MarkdownParser();
+                    var node = parser.ParseString(File.ReadAllText(filePath));
+                    var transformer = new ModelTransformer();
+                    result.AddRange(transformer.NodeModelToMamlModel(node));
+                }
+            }
+            else
+            {
+                Logger.WriteMessage("No help files found in {0}, skipping", directoryPath);
+            }
+
+            return result;
+        }
+
+        private void ValidateHelpRecords(IList<MamlCommand> cmdlets, IList<string> helpRecords,
             ReportLogger<HelpIssue> helpLogger)
         {
             foreach (var cmdlet in cmdlets)
             {
-                if (!helpRecords.Contains(cmdlet.CmdletName, StringComparer.OrdinalIgnoreCase))
-                {
-                    helpLogger.LogRecord(new HelpIssue
-                    {
-                        Target = cmdlet.ClassName,
-                        Severity = 1,
-                        ProblemId = MissingHelp,
-                        Description = string.Format("Help missing for cmdlet {0} implemented by class {1}", 
-                        cmdlet.CmdletName, cmdlet.ClassName),
-                        Remediation = string.Format("Add Help record for cmdlet {0} to help file.", cmdlet.CmdletName)
-                    });
-                }
+                //if (!helpRecords.Contains(cmdlet.CmdletName, StringComparer.OrdinalIgnoreCase))
+                //{
+                //    helpLogger.LogRecord(new HelpIssue
+                //    {
+                //        Target = cmdlet.ClassName,
+                //        Severity = 1,
+                //        ProblemId = MissingHelp,
+                //        Description = string.Format("Help missing for cmdlet {0} implemented by class {1}", 
+                //        cmdlet.CmdletName, cmdlet.ClassName),
+                //        Remediation = string.Format("Add Help record for cmdlet {0} to help file.", cmdlet.CmdletName)
+                //    });
+                //}
             }
         }
     }

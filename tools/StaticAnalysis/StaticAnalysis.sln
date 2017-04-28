@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{865C472B-4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticAnalysis.Test", "StaticAnalysis.Test\StaticAnalysis.Test.csproj", "{A034BE7F-0CD8-4A03-85B3-44CC2E58B86F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown.MAML.Test", "Markdown.MAML.Test\Markdown.MAML.Test.csproj", "{317CCB63-9AFA-4647-8838-DD8E20C8716F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown.MAML", "Markdown.MAML\Markdown.MAML.csproj", "{9AFC25E8-6BAF-4B6B-B33F-CC2E0496E9C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,11 +27,20 @@ Global
 		{A034BE7F-0CD8-4A03-85B3-44CC2E58B86F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A034BE7F-0CD8-4A03-85B3-44CC2E58B86F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A034BE7F-0CD8-4A03-85B3-44CC2E58B86F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{317CCB63-9AFA-4647-8838-DD8E20C8716F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{317CCB63-9AFA-4647-8838-DD8E20C8716F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{317CCB63-9AFA-4647-8838-DD8E20C8716F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{317CCB63-9AFA-4647-8838-DD8E20C8716F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AFC25E8-6BAF-4B6B-B33F-CC2E0496E9C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AFC25E8-6BAF-4B6B-B33F-CC2E0496E9C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AFC25E8-6BAF-4B6B-B33F-CC2E0496E9C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AFC25E8-6BAF-4B6B-B33F-CC2E0496E9C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A034BE7F-0CD8-4A03-85B3-44CC2E58B86F} = {865C472B-4679-4B71-AA4B-B85283F3475D}
+		{317CCB63-9AFA-4647-8838-DD8E20C8716F} = {865C472B-4679-4B71-AA4B-B85283F3475D}
 	EndGlobalSection
 EndGlobal
