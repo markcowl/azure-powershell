@@ -61,6 +61,7 @@
                             Condition=" '$(Scope)' == 'AzureStorage' "/>
     <SetupSln Include=".\setup\azurepowershell.sln" />
     <StaticAnalysis Include=".\tools\StaticAnalysis\StaticAnalysis.sln" />
+    <CorporateScanPaths Include="$(PackageDirectory)\$(Configuration)\**\*.*" />
   </ItemGroup>
 
   <!-- Tasks -->
@@ -88,7 +89,6 @@
     <CIToolsPath>$(OnPremiseBuildTasks)</CIToolsPath>
     <OnPremiseBuild Condition=" Exists($(OnPremiseBuildTasks)) ">true</OnPremiseBuild>
     <OnPremiseBuild Condition=" ! Exists($(OnPremiseBuildTasks)) ">false</OnPremiseBuild>
-    <CorporateScanPaths>$(LibraryRoot)\Package\$(Configuration)</CorporateScanPaths>
   </PropertyGroup>
   <UsingTask Condition=" $(OnPremiseBuild) " TaskName="CodeSigningTask" AssemblyFile="$(CIToolsPath)\Microsoft.WindowsAzure.Tools.Build.Tasks.OnPremise.dll" />
   <UsingTask Condition=" $(OnPremiseBuild) " TaskName="CorporateValidation" AssemblyFile="$(CIToolsPath)\Microsoft.WindowsAzure.Tools.Build.Tasks.OnPremise.dll" />
