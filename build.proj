@@ -241,10 +241,16 @@
              Targets="Build" Properties="Configuration=Debug;Platform=AnyCPU" />
   </Target>
 
+  <Target Name="ValidateCorporateCompliance">
+    <Error Text="This target must be run in an on-premise build server." Condition=" '$(OnPremiseBuild)'=='false' " />
+    <CallTarget Targets="CorporateValidation" />
+  </Target>
+
   <Target Name="CodeSignBinaries">
     <PropertyGroup>
       <!--public token associated with MSSharedLibKey.snk-->
       <StrongNameToken Condition=" '$(StrongNameToken)' == '' ">31bf3856ad364e35</StrongNameToken>
+      <CorporateScanPaths>$(LibraryRoot)\Package\$(Configuration)</CorporateScanPaths>
     </PropertyGroup>
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="WindowsSdkPath"/>
@@ -271,6 +277,8 @@
     <Message Importance="high" Text="$(LibrarySourceFolder)\Package\$(Configuration) does not contains any files to sign. Code sign will skip."
              Condition="'@(DelaySignedAssembliesToSign)' == ''" />
 
+   
+    <CallTarget Targets="ValidateCorporateCompliance" Condition="!$(DelaySign)"/>
     <ValidateStrongNameSignatureTask
       WindowsSdkPath="$(WindowsSdkPath)"
       Assembly="%(DelaySignedAssembliesToSign.Identity)"
