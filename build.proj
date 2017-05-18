@@ -44,7 +44,7 @@
     <BuildOutputDirectory>$(PublishDirectory)\Build</BuildOutputDirectory>
     <SetupOutputDirectory>$(PublishDirectory)\Setup</SetupOutputDirectory>
     <TestOutputDirectory>$(PublishDirectory)\TestResults</TestOutputDirectory>
-    <CorporateScanPaths>$(PackageDirectory)\$(Configuration)\</CorporateScanPaths>
+    <CorporateScanPaths>$(LibrarySourceFolder)\Common;$(LibrarySourceFolder)\ResourceManager;$(LibrarySourceFolder)\ServiceManagement;$(LibrarySourceFolder)\Storage</CorporateScanPaths>
     <BuildInParallel Condition="'$(BuildInParallel)' == ''">true</BuildInParallel>
     <NuGetPublishingSource Condition=" '$(NuGetPublishingSource)' == '' ">http://psget/PSGallery/api/v2/</NuGetPublishingSource>
     <Scope Condition=" $(Scope) == '' " >all</Scope>
