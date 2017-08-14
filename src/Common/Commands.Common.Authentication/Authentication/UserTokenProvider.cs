@@ -12,12 +12,12 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------------
 using Hyak.Common;
-using Microsoft.Azure.Commands.Common.Authentication;
 using Microsoft.Azure.Commands.Common.Authentication.Abstractions;
 using Microsoft.Azure.Commands.Common.Authentication.Properties;
 using Microsoft.Azure.Commands.Common.Authentication.Utilities;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
+using System.Linq;
 using System.Security;
 using System.Security.Authentication;
 using System.Threading;
@@ -262,6 +262,7 @@ namespace Microsoft.Azure.Commands.Common.Authentication
                 else
                 {
                     UserCredential credential = new UserCredential(userId, password);
+                    RemoveTokensForLogin(context, config, userId);
                     result = context.AcquireToken(config.ResourceClientUri, config.ClientId, credential);
                 }
             }
@@ -276,6 +277,40 @@ namespace Microsoft.Azure.Commands.Common.Authentication
                 message += ": " + ex.InnerException.Message;
             }
             return message;
+        }
+
+        private void RemoveTokensForLogin(AuthenticationContext context, AdalConfiguration config, string userId )
+        {
+            // If tokens exist for this user, login will not use the username/password.
+            // This makes for strange looking behavior - you can login this way with a bad password.
+            // To avoid this weird bhavior, remove tokens for this user before attempting a log in.
+            // This will ensure that a full authentication occurs.
+            if (context.TokenCache != null)
+            {
+                var items = context.TokenCache.ReadItems();
+                if (items != null)
+                {
+                    var userCacheItems = items.Where(
+                        i => string.Equals(i.DisplayableId, userId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(i.Resource, config.ResourceClientUri, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(i.ClientId, config.ClientId, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(i.TenantId, config.AdDomain, StringComparison.OrdinalIgnoreCase));
+                    if (userCacheItems != null)
+                    {
+                        try
+                        {
+                            foreach (var item in userCacheItems)
+                            {
+                                context.TokenCache.DeleteItem(item);
+                            }
+                        }
+                        catch
+                        {
+                            // do not fail if the token cache items cannot be removed.
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
