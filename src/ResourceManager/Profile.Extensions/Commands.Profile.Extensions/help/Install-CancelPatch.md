@@ -1,6 +1,6 @@
 ---
 external help file: AzureRM.Profile.Extensions-help.xml
-online version: 
+online version: https://docs.microsoft.com/en-us/powershell/module/azurerm.profile.extensions/install-cancelpatch
 schema: 2.0.0
 ---
 
