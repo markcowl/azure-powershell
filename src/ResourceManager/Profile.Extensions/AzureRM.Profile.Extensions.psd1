@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-# RootModule = ''
+RootModule = '.\AzureRM.Profile.Extensions.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.1.0'
@@ -57,7 +57,7 @@ RequiredModules = @(@{ModuleName="AzureRM.Profile"; ModuleVersion="4.4.0"})
 RequiredAssemblies = '.\Microsoft.Azure.Commands.Profile.Extensions.dll'
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
-ScriptsToProcess = '.\Install-CancelPatch.ps1'
+# ScriptsToProcess = ''
 
 # Type files (.ps1xml) to be loaded when importing this module
 #TypesToProcess = ''
