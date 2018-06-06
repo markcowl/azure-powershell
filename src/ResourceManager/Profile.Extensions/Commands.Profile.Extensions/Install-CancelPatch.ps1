@@ -12,8 +12,16 @@
 #  limitations under the License.
 #  ----------------------------------------------------------------------------------
 
-#Requires -Modules @{ModuleName="AzureRM.Profile"; ModuleVersion="4.0.0"}
-$dllPath = Join-Path $PSScriptRoot -ChildPath "Microsoft.Azure.Commands.Profile.Extensions.dll"
-Add-Type -Path $dllPath
-$handler = New-Object -TypeName Microsoft.Azure.Commands.Profile.Extensions.CancelRetryDelegatingHandler -ArgumentList [System.TimeSpan]::FromSeconds(10), 3
-[Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.ClientFactory.AddHandler($handler)
+function Install-CancelPatch 
+{
+    [CmdletBinding()]
+	param()
+
+    process 
+    {
+        $dllPath = Join-Path $PSScriptRoot -ChildPath "Microsoft.Azure.Commands.Profile.Extensions.dll"
+        Add-Type -Path $dllPath
+        $handler = New-Object -TypeName Microsoft.Azure.Commands.Profile.Extensions.CancelRetryDelegatingHandler -ArgumentList [System.TimeSpan]::FromSeconds(10), 3
+        [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.ClientFactory.AddHandler($handler)
+    }
+}
