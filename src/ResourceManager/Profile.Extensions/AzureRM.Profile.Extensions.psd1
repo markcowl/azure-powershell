@@ -54,7 +54,7 @@ CLRVersion = '4.0'
 RequiredModules = @(@{ModuleName="AzureRM.Profile"; ModuleVersion="4.4.0"})
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = ''
+RequiredAssemblies = '.\Microsoft.Azure.Commands.Profile.Extensions.dll'
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 ScriptsToProcess = '.\Install-CancelPatch.ps1'
@@ -66,7 +66,7 @@ ScriptsToProcess = '.\Install-CancelPatch.ps1'
 #FormatsToProcess = ''
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @('.\Microsoft.Azure.Commands.Profile.Extensions.dll')
+NestedModules = ''
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Install-CancelPatch'

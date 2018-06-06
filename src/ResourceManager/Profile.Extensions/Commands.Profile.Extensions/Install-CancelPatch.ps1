@@ -19,9 +19,7 @@ function Install-CancelPatch
 
     process 
     {
-        $dllPath = Join-Path $PSScriptRoot -ChildPath "Microsoft.Azure.Commands.Profile.Extensions.dll"
-        Add-Type -Path $dllPath
-        $handler = New-Object -TypeName Microsoft.Azure.Commands.Profile.Extensions.CancelRetryDelegatingHandler -ArgumentList [System.TimeSpan]::FromSeconds(10), 3
+        $handler = New-Object -TypeName Microsoft.Azure.Commands.Profile.Extensions.CancelRetryDelegatingHandler -Property @{WaitInterval=[System.TimeSpan]::FromSeconds(10); MaxTries=3}
         [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.ClientFactory.AddHandler($handler)
     }
 }

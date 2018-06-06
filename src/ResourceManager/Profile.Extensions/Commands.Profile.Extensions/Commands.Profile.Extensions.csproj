@@ -61,7 +61,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="..\AzureRM.Profile.Extensions.psd1">
-      <Link>AzureRM.Profile.psd1</Link>
+      <Link>AzureRM.Profile.Extensions.psd1</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="MSSharedLibKey.snk" />
