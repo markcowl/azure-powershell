@@ -24,6 +24,8 @@ using Microsoft.Azure.Commands.Profile.Models;
 using System.Globalization;
 using Microsoft.Azure.Commands.Common.Authentication;
 using System.IO;
+using Microsoft.Rest;
+using Microsoft.WindowsAzure.Commands.Utilities.Common;
 
 namespace Microsoft.Azure.Commands.Common
 {
@@ -135,24 +137,89 @@ namespace Microsoft.Azure.Commands.Common
 
     internal class AuthorizeRequest
     {
-        internal static Func<HttpRequestMessage, CancellationToken, Action, SignalDelegate, NextDelegate, Task<HttpResponseMessage>> SendHandler(IAzureContext context, IAuthenticationFactory factory, string resourceId)
+    }
+
+    internal class ContextAdapter
+    {
+        IProfileProvider _provider = AzureRmProfileProvider.Instance;
+        IAuthenticationFactory _authenticator = AzureSession.Instance.AuthenticationFactory;
+
+        internal static ContextAdapter Instance => new ContextAdapter();
+
+        public void OnNewRequest(Dictionary<string, object> boundParameters, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
+        {
+            Console.WriteLine("Called OnNewRequest");
+            appendStep(this.SendHandler(GetDefaultContext(_provider, boundParameters), AzureEnvironment.Endpoint.ResourceManager));
+        }
+
+        public object GetParameterValue(string moduleName, Dictionary<string, object> boundParameters, string name)
+        {
+            var defaultContext = GetDefaultContext(_provider, boundParameters);
+            var endpoint = GetDefaultEndpoint(defaultContext, AzureEnvironment.Endpoint.ResourceManager);
+            switch (name)
+            {
+                case "subscriptionId":
+                    return defaultContext?.Subscription?.Id;
+                case "host":
+                    return endpoint?.Host;
+                case "port":
+                    return endpoint?.Port;
+            }
+
+            return string.Empty;
+        }
+
+        static IAzureContext GetDefaultContext(IProfileProvider provider, Dictionary<string, object> boundParameters)
+        {
+            IAzureContextContainer context;
+            var contextConverter = new AzureContextConverter();
+            if (boundParameters.ContainsKey("DefaultContext")
+                && contextConverter.CanConvertFrom(boundParameters["DefaultContext"], typeof(IAzureContextContainer)))
+            {
+                context = contextConverter.ConvertFrom(boundParameters["DefaultContext"], typeof(IAzureContextContainer), CultureInfo.InvariantCulture, true) as IAzureContextContainer;
+            }
+            else
+            {
+                context = provider.Profile;
+            }
+
+            return context?.DefaultContext;
+        }
+
+        static Uri GetDefaultEndpoint(IAzureContext context, string endpointName = AzureEnvironment.Endpoint.ResourceManager)
+        {
+            var environment = context?.Environment ?? AzureEnvironment.PublicEnvironments[EnvironmentName.AzureCloud];
+            return environment.GetEndpointAsUri(endpointName);
+        }
+
+        internal Func<HttpRequestMessage, CancellationToken, Action, SignalDelegate, NextDelegate, Task<HttpResponseMessage>> SendHandler(IAzureContext context, string resourceId)
         {
             return (request, cancelToken, cancelAction, signal, next) =>
             {
-                var authToken = factory.Authenticate(context.Account, context.Environment, context.Tenant.Id, null, "Never", null, resourceId);
+                var authToken = _authenticator.Authenticate(context.Account, context.Environment, context.Tenant.Id, null, "Never", null, resourceId);
                 authToken.AuthorizeRequest((type, token) => request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(type, token));
                 return next(request, cancelToken, cancelAction, signal);
             };
         }
     }
 
+    internal static class PSModuleExtensions
+    {
+        internal static Module GetModule(this PSCmdlet cmdlet)
+        {
+            return new Module(cmdlet.CommandRuntime);
+        }
+    }
     /// <summary>
     /// Cheap and dirty implementation of module functions (does not have to look like this!)
     /// </summary>
     public class Module
     {
-        private static Module _instance;
-        public static Module Instance => Module._instance ?? (Module._instance = new Module());
+        ICommandRuntime _runtime;
+        public Module (ICommandRuntime runtime)
+        {
+            _runtime = runtime;
+        }
 
         public void OnModuleLoad(string moduleName, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
         {
@@ -164,77 +231,6 @@ namespace Microsoft.Azure.Commands.Common
             // appendStep( RetryHandler.SendAsync );
         }
 
-        public void OnNewRequest(Dictionary<string, object> boundParameters, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
-        {
-            Console.WriteLine("Called OnNewRequest");
-
-            // This is called at the beginning of ProcessRecordAsync.
-            // You get the boundParameters, and can identify what you should be adding for auth header based on that.
-
-            appendStep(DumpHeaders.Instance.SendAsync);
-            appendStep(DumpResponse.Instance.SendAsync);
-
-            IAzureContextContainer context;
-            var contextConverter = new AzureContextConverter();
-            if (boundParameters.ContainsKey("DefaultContext")
-                && contextConverter.CanConvertFrom(boundParameters["DefaultContext"], typeof(IAzureContextContainer)))
-            {
-                context = contextConverter.ConvertFrom(boundParameters["DefaultContext"], typeof(IAzureContextContainer), CultureInfo.InvariantCulture, true) as IAzureContextContainer;
-            }
-            else
-            {
-                context = AzureRmProfileProvider.Instance.Profile;
-            }
-
-            appendStep(AuthorizeRequest.SendHandler(context.DefaultContext, AzureSession.Instance.AuthenticationFactory, AzureEnvironment.Endpoint.ResourceManager));
-
-            // add a step that requires us to look into the boundParameters
-            prependStep((request, token, cancel, signal, next) =>
-            {
-                // silly example (note: this would be playing with the bound parameters a bit later (during the API call, instead of at the pipeline setup point))
-
-                // we can't cancel here.
-                // and we can't check for cancellation?
-
-
-                request.Headers.Add("x-ms-ps-number-bound-parameters", boundParameters.Count.ToString());
-
-                // send an event
-                signal("Tracing", token, () =>
-                {
-                    return new EventData
-                    {
-                        Message = "This is my sample message SampleMessage",
-                    };
-                });
-                return next(request, token, cancel, signal);
-            });
-            // this will be called every time the client is about to make a request across the wire.
-
-            // the common module can prepend or append steps to the pipeline at this point.
-            // prependStep( AuthHeader.SendAsync );
-            // prependStep( UniqueId.Instance.SendAsync );
-
-        }
-
-        public object GetParameterValue(string moduleName, Dictionary<string, object> boundParameters, string name)
-        {
-            switch (name)
-            {
-                case "subscriptionId":
-                    return "subscription-id-123";
-
-                case "resourceGroupName":
-                    return "resource-group-name-foo";
-
-                case "host":
-                    return "management.azure.com";
-
-                case "port":
-                    return 443;
-            }
-            return null; // no value? 
-        }
 
         public async Task EventListener(string id, CancellationToken token, GetEventData getEventData)
         {
@@ -247,14 +243,16 @@ namespace Microsoft.Azure.Commands.Common
                         var data = EventDataConverter.ConvertFrom(getEventData()); // also, we manually use our TypeConverter to return an appropriate type
                         Console.WriteLine($"REQUEST CREATED The contents are '{data.Id}' and '{data.Message}'");
 
-                        if (data.RequestMessage is HttpRequestMessage msg)
+                        var request = data.RequestMessage as HttpRequestMessage;
+                        if (request != null)
                         {
                             // alias/casting the request message to an HttpRequestMessage is necessary so that we can 
                             // support other protocols later on. (ie, JSONRPC, MQTT, GRPC ,AMPQ, Etc..)
 
                             // at this point, we can do with the request  
-                            msg.Headers.Add("x-ms-peekaboo", "true");
-                            await msg.Content.CopyToAsync(new MemoryStream());
+                            request.Headers.Add("x-ms-peekaboo", "true");
+                            await request.Content.CopyToAsync(new MemoryStream());
+                            Console.WriteLine(GeneralUtilities.GetLog(request));
                         }
                     }
                     break;
@@ -268,10 +266,18 @@ namespace Microsoft.Azure.Commands.Common
                         var request = data.RequestMessage as HttpRequestMessage;
                         if (request != null)
                         {
-                            foreach (var header in request.Headers)
-                            {
-                                Console.WriteLine($"{header.Key} = {header.Value}");
-                            }
+                            // alias/casting the request message to an HttpRequestMessage is necessary so that we can 
+                            // support other protocols later on. (ie, JSONRPC, MQTT, GRPC ,AMPQ, Etc..)
+
+                            // at this point, we can do with the request  
+                            request.Headers.Add("x-ms-peekaboo", "true");
+                            Console.WriteLine(GeneralUtilities.GetLog(request));
+                        }
+
+                        var response = data.ResponseMessage as HttpResponseMessage;
+                        if (response != null)
+                        {
+                           Console.WriteLine(GeneralUtilities.GetLog(response));
                         }
                     }
                     break;
@@ -304,19 +310,20 @@ namespace Microsoft.Azure.Commands.Common
         {
             try
             {
+                var module = this.GetModule();
                 WriteObject(new VTable
                 {
                     // this gets called when the generated cmdlet needs a value
-                    GetParameterValue = Module.Instance.GetParameterValue,
+                    GetParameterValue = ContextAdapter.Instance.GetParameterValue,
 
                     // this gets called for every event that is signaled
-                    EventListener = Module.Instance.EventListener,
+                    EventListener = module.EventListener,
 
                     // this gets called at module load time (allows you to change the http pipeline)
-                    OnModuleLoad = Module.Instance.OnModuleLoad,
+                    OnModuleLoad = module.OnModuleLoad,
 
                     // this gets called before the generated cmdlet makes a call across the wire (allows you to change the HTTP pipeline)
-                    OnNewRequest = Module.Instance.OnNewRequest
+                    OnNewRequest = ContextAdapter.Instance.OnNewRequest
                 });
             }
             catch (Exception exception)
