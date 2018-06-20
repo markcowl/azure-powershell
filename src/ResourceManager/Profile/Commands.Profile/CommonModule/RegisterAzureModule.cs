@@ -32,13 +32,33 @@ namespace Microsoft.Azure.Commands.Common
 
     using GetEventData = Func<EventArgs>;
     using NextDelegate = Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>;
-    using SignalDelegate = Func<string, CancellationToken, Func<EventArgs>, Task>;
-    using GetParameterDelegate = Func<string, Dictionary<string, object>, string, object>;
+    using SignalDelegate = System.Func<string, System.Threading.CancellationToken, System.Func<System.EventArgs>, System.Threading.Tasks.Task>;
+    using EventListenerDelegate = System.Func<string, System.Threading.CancellationToken, System.Func<System.EventArgs>, System.Func<string, System.Threading.CancellationToken, System.Func<System.EventArgs>, System.Threading.Tasks.Task>, System.Threading.Tasks.Task>;
+    using GetParameterDelegate = Func<string, string, Dictionary<string, object>, string, object>;
     using SendAsyncStepDelegate = Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>;
     using PipelineChangeDelegate = Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>;
-    using ModuleLoadPipelineDelegate = Action<string, Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>, Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>>;
+    using ModuleLoadPipelineDelegate = Action<string, string, Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>, Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>>;
     using NewRequestPipelineDelegate = Action<Dictionary<string, object>, Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>, Action<Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>>>;
 
+    internal static class SignalExtensions {
+        public static Task Verbose( this SignalDelegate signal, string text ) => signal(Events.Verbose, CancellationToken.None, ()=> new EventData{ Message = text } );
+        public static Task Debug( this SignalDelegate signal, string text ) => signal(Events.Debug, CancellationToken.None, ()=> new EventData{ Message = text } );
+        public static Task Warning( this SignalDelegate signal, string text ) => signal(Events.Warning, CancellationToken.None, ()=> new EventData{ Message = text } );
+        public static Task Error( this SignalDelegate signal, string text ) => signal(Events.Error, CancellationToken.None, ()=> new EventData{ Message = text } );
+        public static Task Information( this SignalDelegate signal, string text ) => signal(Events.Information, CancellationToken.None, ()=> new EventData{ Message = text } );
+
+        public static Task Verbose( this SignalDelegate signal, EventData eventData ) => signal(Events.Verbose, CancellationToken.None, ()=> eventData );
+        public static Task Debug( this SignalDelegate signal, EventData eventData) => signal(Events.Debug, CancellationToken.None, ()=> eventData );
+        public static Task Warning( this SignalDelegate signal, EventData eventData) => signal(Events.Warning, CancellationToken.None, ()=> eventData );
+        public static Task Error( this SignalDelegate signal,EventData eventData ) => signal(Events.Error, CancellationToken.None, ()=> eventData );
+        public static Task Information( this SignalDelegate signal, EventData eventData) => signal(Events.Information, CancellationToken.None, ()=> eventData );
+
+         public static Task Verbose( this SignalDelegate signal, Func<EventData> getEventData ) => signal(Events.Verbose, CancellationToken.None, getEventData);
+        public static Task Debug( this SignalDelegate signal, Func<EventData> getEventData) => signal(Events.Debug, CancellationToken.None, getEventData );
+        public static Task Warning( this SignalDelegate signal, Func<EventData> getEventData) => signal(Events.Warning, CancellationToken.None, getEventData );
+        public static Task Error( this SignalDelegate signal,Func<EventData> getEventData ) => signal(Events.Error, CancellationToken.None, getEventData );
+        public static Task Information( this SignalDelegate signal, Func<EventData> getEventData) => signal(Events.Information, CancellationToken.None, getEventData );
+    }
 
     /// <summary>
     /// The Virtual Call table of the functions to be exported to the generated module
@@ -46,7 +66,7 @@ namespace Microsoft.Azure.Commands.Common
     public class VTable
     {
         public GetParameterDelegate GetParameterValue;
-        public SignalDelegate EventListener;
+        public EventListenerDelegate EventListener;
 
         public ModuleLoadPipelineDelegate OnModuleLoad;
         public NewRequestPipelineDelegate OnNewRequest;
@@ -70,13 +90,12 @@ namespace Microsoft.Azure.Commands.Common
         /// <param name="signal">You can signal events with this</param>
         /// <param name="next">Call this to continue the call</param>
         /// <returns></returns>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token, Action cancel, SignalDelegate signal, NextDelegate next)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token, Action cancel, SignalDelegate signal, NextDelegate next)
         {
-
-            Console.WriteLine($"Calling {request.RequestUri.AbsoluteUri}");
+            await signal.Verbose( $"Calling {request.RequestUri.AbsoluteUri}" );
 
             // continue with pipeline.
-            return next(request, token, cancel, signal);
+            return await next(request, token, cancel, signal);
         }
     }
 
@@ -93,7 +112,7 @@ namespace Microsoft.Azure.Commands.Common
 
             foreach (var header in response.Headers)
             {
-                Console.WriteLine($"output header : {header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}");
+                await signal.Verbose( $"output header : {header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}" );
             }
 
             return response;
@@ -127,7 +146,8 @@ namespace Microsoft.Azure.Commands.Common
             // add a header...
             foreach (var header in request.Headers)
             {
-                Console.WriteLine($"{header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}");
+                signal.Verbose($"{header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}" );
+                // Console.WriteLine($"{header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}");
             }
 
             // continue with pipeline.
@@ -148,11 +168,11 @@ namespace Microsoft.Azure.Commands.Common
 
         public void OnNewRequest(Dictionary<string, object> boundParameters, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
         {
-            Console.WriteLine("Called OnNewRequest");
+            // Console.WriteLine("Called OnNewRequest");
             appendStep(this.SendHandler(GetDefaultContext(_provider, boundParameters), AzureEnvironment.Endpoint.ResourceManager));
         }
 
-        public object GetParameterValue(string moduleName, Dictionary<string, object> boundParameters, string name)
+        public object GetParameterValue(string resourceId, string moduleName, Dictionary<string, object> boundParameters, string name)
         {
             var defaultContext = GetDefaultContext(_provider, boundParameters);
             var endpoint = GetDefaultEndpoint(defaultContext, AzureEnvironment.Endpoint.ResourceManager);
@@ -221,7 +241,7 @@ namespace Microsoft.Azure.Commands.Common
             _runtime = runtime;
         }
 
-        public void OnModuleLoad(string moduleName, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
+        public void OnModuleLoad(string resourceId, string moduleName, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
         {
             Console.WriteLine("Called OnModuleLoad");
             // this will be called once when the module starts up 
@@ -232,7 +252,7 @@ namespace Microsoft.Azure.Commands.Common
         }
 
 
-        public async Task EventListener(string id, CancellationToken token, GetEventData getEventData)
+        public async Task EventListener(string id, CancellationToken token, GetEventData getEventData, SignalDelegate signal)
         {
             switch (id)
             {
@@ -241,7 +261,9 @@ namespace Microsoft.Azure.Commands.Common
                         // once we're sure we're handling the event, then we can retrieve the event data. 
                         // (this ensures that we're not doing any of the work unless we really care about the event. )
                         var data = EventDataConverter.ConvertFrom(getEventData()); // also, we manually use our TypeConverter to return an appropriate type
-                        Console.WriteLine($"REQUEST CREATED The contents are '{data.Id}' and '{data.Message}'");
+                        // Console.WriteLine($"REQUEST CREATED The contents are '{data.Id}' and '{data.Message}'");
+                        await signal.Verbose($"REQUEST CREATED The contents are '{data.Id}' and '{data.Message}'");
+                        
 
                         var request = data.RequestMessage as HttpRequestMessage;
                         if (request != null)
@@ -252,7 +274,8 @@ namespace Microsoft.Azure.Commands.Common
                             // at this point, we can do with the request  
                             request.Headers.Add("x-ms-peekaboo", "true");
                             await request.Content.CopyToAsync(new MemoryStream());
-                            Console.WriteLine(GeneralUtilities.GetLog(request));
+                            // Console.WriteLine(GeneralUtilities.GetLog(request));
+                            await signal.Verbose(GeneralUtilities.GetLog(request));
                         }
                     }
                     break;
@@ -262,7 +285,8 @@ namespace Microsoft.Azure.Commands.Common
                         // once we're sure we're handling the event, then we can retrieve the event data. 
                         // (this ensures that we're not doing any of the work unless we really care about the event. )
                         var data = EventDataConverter.ConvertFrom(getEventData());
-                        Console.WriteLine($"RESPONSE CREATED The contents are '{data.Id}' and '{data.Message}'");
+                        // Console.WriteLine($"RESPONSE CREATED The contents are '{data.Id}' and '{data.Message}'");
+                        await signal.Verbose($"RESPONSE CREATED The contents are '{data.Id}' and '{data.Message}'");
                         var request = data.RequestMessage as HttpRequestMessage;
                         if (request != null)
                         {
@@ -271,13 +295,15 @@ namespace Microsoft.Azure.Commands.Common
 
                             // at this point, we can do with the request  
                             request.Headers.Add("x-ms-peekaboo", "true");
-                            Console.WriteLine(GeneralUtilities.GetLog(request));
+                            // Console.WriteLine(GeneralUtilities.GetLog(request));
+                            await signal.Verbose(GeneralUtilities.GetLog(request));
                         }
 
                         var response = data.ResponseMessage as HttpResponseMessage;
                         if (response != null)
                         {
-                           Console.WriteLine(GeneralUtilities.GetLog(response));
+                           // Console.WriteLine(GeneralUtilities.GetLog(response));
+                           await signal.Verbose(GeneralUtilities.GetLog(response));
                         }
                     }
                     break;
@@ -287,13 +313,16 @@ namespace Microsoft.Azure.Commands.Common
 
                         var data = EventDataConverter.ConvertFrom(getEventData());
                         // this was our own code above that sent this message.
-                        Console.WriteLine($"TRACING EVENT; The contents are '{data.Id}' and '{data.Message}'");
+                        //Console.WriteLine($"TRACING EVENT; The contents are '{data.Id}' and '{data.Message}'");
+                        await signal.Verbose($"TRACING EVENT; The contents are '{data.Id}' and '{data.Message}'");
                     }
                     break;
 
                 default:
                     // events we aren't actively looking at...
-                    Console.WriteLine($"Skipped Event Handling for {id}");
+                    // Console.WriteLine($"Skipped Event Handling for {id}");
+                    // await signal( Events.Debug, token, ()=> new EventData { Message=$"Skipped Event Handling for {id}"});
+                    await signal.Debug( $"Skipped Event Handling for {id}" );
 
                     // you'll note that by not calling getEventData() 
                     break;
