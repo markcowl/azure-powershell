@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+    <AssemblyName>Microsoft.Azure.PowerShell.TestPrerequisites</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <RootNamespace>Microsoft.Azure.PowerShell.Test</RootNamespace>
+    <OutputPath>..\..\Package\Artifacts</OutputPath>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Commands.Common.Authentication.Abstractions\Common.Authentication.Abstractions.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Authentication\Common.Authentication.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Authorization\Common.Authorization.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Graph.RBAC\Common.Rbac.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Network\Common.Network.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Storage\Common.Storage.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common\Common.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Authentication.ResourceManager\Common.ResourceManager.Authentication.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Strategies\Common.Strategies.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\ResourceManager\Common\Commands.ResourceManager.Common\Common.ResourceManager.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\ResourceManager\Common\Commands.ScenarioTests.ResourceManager.Common\Common.ResourceManager.ScenarioTests.Netcore.csproj" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hyak.Common" Version="1.2.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Common" Version="2.2.0" PrivateAssets="All"/>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0-preview-06" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Azure.Test.HttpRecorder" Version="1.9.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.4.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure" Version="3.4.0"  PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.TestFramework" Version="1.9.0"  PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="1.6.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+
+  </ItemGroup>
+
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
+    <Message Text="1. Including File in package:%0D%0A%09@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" Importance="high"/>
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="! ($([System.String]::Copy(%(Filename)).Contains('System.')) Or $([System.String]::Copy(%(Filename)).Contains('Microsoft.CSharp')))"/>
+    </ItemGroup>
+  </Target>
+  
+</Project>
