@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);CopyPackageReferenceContent</TargetsForTfmSpecificContentInPackage>
     <AssemblyName>Microsoft.Azure.PowerShell.TestPrerequisites</AssemblyName>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RootNamespace>Microsoft.Azure.PowerShell.Test</RootNamespace>
@@ -18,10 +19,10 @@
     <ProjectReference Include="..\..\Common\Commands.Common.Network\Common.Network.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common.Storage\Common.Storage.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common\Common.Netcore.csproj" PrivateAssets="All"/>
-    <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Authentication.ResourceManager\Common.ResourceManager.Authentication.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Authentication.ResourceManager\Common.ResourceManager.Authentication.Netcore.csproj" PrivateAssets="all"/>
     <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Strategies\Common.Strategies.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\ResourceManager\Common\Commands.ResourceManager.Common\Common.ResourceManager.Netcore.csproj" PrivateAssets="All"/>
-    <ProjectReference Include="..\..\ResourceManager\Common\Commands.ScenarioTests.ResourceManager.Common\Common.ResourceManager.ScenarioTests.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\ResourceManager\Common\Commands.ScenarioTests.ResourceManager.Common\Common.ResourceManager.ScenarioTests.Netcore.csproj" PrivateAssets="all"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +34,7 @@
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure" Version="3.4.0"  PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.TestFramework" Version="1.9.0"  PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="1.6.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="1.9.0-preview" PrivateAssets="All"/>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="xunit" Version="2.4.0" />
 
@@ -42,7 +43,16 @@
   <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
     <Message Text="1. Including File in package:%0D%0A%09@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)', '%0D%0A%09')" Importance="high"/>
     <ItemGroup>
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="! ($([System.String]::Copy(%(Filename)).Contains('System.')) Or $([System.String]::Copy(%(Filename)).Contains('Microsoft.CSharp')))"/>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)" Condition="! ($([System.String]::Copy(%(Filename)).Contains('System.')) Or $([System.String]::Copy(%(Filename)).Contains('Microsoft.CSharp')) Or $([System.String]::Copy(%(Filename)).Contains('Newtonsoft.Json')) Or $([System.String]::Copy(%(Filename)).StartsWith('xunit')))"/>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CopyPackageReferenceContent" DependsOnTargets="Build">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutDir)\*.ps1" >
+        <BuildAction>Content</BuildAction>
+        <PackageCopyToOutput>true</PackageCopyToOutput>
+      </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
   

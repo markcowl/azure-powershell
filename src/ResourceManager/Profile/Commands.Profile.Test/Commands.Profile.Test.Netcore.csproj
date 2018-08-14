@@ -41,7 +41,7 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.*" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-    <PackageReference Include="Microsoft.Azure.PowerShell.TestPrerequisites" Version="*" />
+    <PackageReference Include="Microsoft.Azure.PowerShell.TestPrerequisites" Version="*" IncludeAssets="All" PrivateAssets="none"/>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Management.Automation">
       <SpecificVersion>False</SpecificVersion>
