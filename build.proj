@@ -468,14 +468,14 @@
 
     <!-- Azure -->
     <ItemGroup Condition="'$(Scope)' == 'All' or '$(Scope)' == 'Latest' or '$(Scope)' == 'Netcore'">
-      <DelaySignedAssembliesToSign Include="$(PackageDirectory)\$(Configuration)\**\Microsoft*Azure*Commands*.dll" />
+      <DelaySignedAssembliesToSign Include="$(PackageDirectory)\$(Configuration)\**\Microsoft*Azure*Commands*.dll" Exclude "*Common*"/>
       <DelaySignedAssembliesToSign Include="$(PackageDirectory)\$(Configuration)\**\Microsoft.Azure.Common.Extensions.dll" />
       <DelaySignedAssembliesToSign Include="$(PackageDirectory)\$(Configuration)\**\Microsoft.Azure.Management.Sql.Legacy.dll" />
     </ItemGroup>
 
     <!-- Stack -->
     <ItemGroup Condition="'$(Scope)' == 'Stack'">
-      <DelaySignedAssembliesToSign Include="$(StackPackageFolder)\$(Configuration)\**\Microsoft*Azure*Commands*.dll" />
+      <DelaySignedAssembliesToSign Include="$(StackPackageFolder)\$(Configuration)\**\Microsoft*Azure*Commands*.dll"  Exclude "*Common*"/>
       <DelaySignedAssembliesToSign Include="$(StackPackageFolder)\$(Configuration)\**\Microsoft.Azure.Common.Extensions.dll" />
       <DelaySignedAssembliesToSign Include="$(StackPackageFolder)\$(Configuration)\**\Microsoft.Azure.Management.Sql.Legacy.dll" />
    </ItemGroup>
