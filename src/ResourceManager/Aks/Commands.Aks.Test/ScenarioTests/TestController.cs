@@ -37,8 +37,9 @@ namespace Commands.Aks.Test.ScenarioTests
 
         public void RunPowerShellTest(XunitTracingInterceptor logger, params string[] scripts)
         {
-            var callingClassType = TestUtilities.GetCallingClass(2);
-            var mockName = TestUtilities.GetCurrentMethodName(2);
+            var sf = new StackTrace().GetFrame(1);
+            var callingClassType = sf.GetMethod().ReflectedType?.ToString();
+            var mockName = sf.GetMethod().Name;
 
             helper.TracingInterceptor = logger;
 
