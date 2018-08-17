@@ -3,7 +3,7 @@
   <Import Project="..\..\..\..\tools\Common.Netcore.Dependencies.Test.targets" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
     <AssemblyName>Microsoft.Azure.Commands.Sql.Test</AssemblyName>
     <RootNamespace>Microsoft.Azure.Commands.Sql.Test</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -25,13 +25,13 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Microsoft.Azure.Management.Sql" Version="1.18.0-preview" />
     <PackageReference Include="Microsoft.Azure.Management.Network" Version="19.1.0-preview" />
     <PackageReference Include="Microsoft.Azure.Graph.RBAC" Version="3.2.0-preview" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <ProjectReference Include="..\..\Common\Commands.Common.Authentication.ResourceManager\Common.ResourceManager.Authentication.Netcore.csproj" />
     <ProjectReference Include="..\..\..\Common\Commands.Common.Authentication.Abstractions\Common.Authentication.Abstractions.Netcore.csproj" />
     <ProjectReference Include="..\..\..\Common\Commands.Common.Storage\Common.Storage.Netcore.csproj" />
@@ -40,6 +40,19 @@
     <ProjectReference Include="..\..\Common\Commands.ScenarioTests.ResourceManager.Common\Common.ResourceManager.ScenarioTests.Netcore.csproj" />
   </ItemGroup>
 
+<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="NetStandard.Library" Version="2.0.3" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.*" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="Microsoft.Azure.PowerShell.TestPrerequisites" Version="*" IncludeAssets="All" PrivateAssets="none"/>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Management.Automation">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(windir)\Microsoft.NET\assembly\GAC_MSIL\System.Management.Automation\v4.0_3.0.0.0__31bf3856ad364e35\System.Management.Automation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
   <ItemGroup>
     <Reference Include="Microsoft.Azure.Commands.Sql">
       <HintPath>..\..\..\Package\$(Configuration)\ResourceManager\AzureResourceManager\Az.Sql\Microsoft.Azure.Commands.Sql.dll</HintPath>

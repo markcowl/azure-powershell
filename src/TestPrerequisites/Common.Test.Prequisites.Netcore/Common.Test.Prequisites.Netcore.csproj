@@ -14,13 +14,18 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Commands.Common.Authentication.Abstractions\Common.Authentication.Abstractions.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common.Authentication\Common.Authentication.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Aks\Commands.Common.Aks.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common.Authorization\Common.Authorization.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Compute\Common.Compute.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common.Graph.RBAC\Common.Rbac.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.KeyVault\Common.KeyVault.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common.Network\Common.Network.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common.Storage\Common.Storage.Netcore.csproj" PrivateAssets="All"/>
+   <ProjectReference Include="..\..\Common\Commands.Common.Storage.Management\Common.Storage.Management.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\Common\Commands.Common\Common.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Authentication.ResourceManager\Common.ResourceManager.Authentication.Netcore.csproj" PrivateAssets="all"/>
     <ProjectReference Include="..\..\ResourceManager\Common\Commands.Common.Strategies\Common.Strategies.Netcore.csproj" PrivateAssets="All"/>
+    <ProjectReference Include="..\..\Common\Commands.Common.Websites\Common.Websites.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\ResourceManager\Common\Commands.ResourceManager.Common\Common.ResourceManager.Netcore.csproj" PrivateAssets="All"/>
     <ProjectReference Include="..\..\ResourceManager\Common\Commands.ScenarioTests.ResourceManager.Common\Common.ResourceManager.ScenarioTests.Netcore.csproj" PrivateAssets="all"/>
   </ItemGroup>
@@ -30,21 +35,35 @@
     <PackageReference Include="Microsoft.Azure.Common" Version="2.2.0" PrivateAssets="All"/>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0-preview-06" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Azure.Test.HttpRecorder" Version="1.9.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Azure.Storage.DataMovement" Version="0.7.1" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.4.0" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure" Version="3.4.0"  PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.TestFramework" Version="1.9.0"  PrivateAssets="All"/>
+    <PackageReference Include="Azure.Batch" Version="8.1.1" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.1.1" PrivateAssets="All"/>
+    <PackageReference Include="WindowsAzure.Storage" Version="9.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Commerce.UsageAggregates" Version="1.5.1" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Graph.RBAC" Version="3.4.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Insights" Version="0.15.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Analysis" Version="2.0.3" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Automation" Version="2.0.5" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Authorization" Version="2.8.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.ManagementGroups" Version="1.1.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Batch" Version="4.2.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Compute" Version="21.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.DeviceProvisioningServices" Version="0.9.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.IotHub" Version="2.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.KeyVault" Version="2.4.1-alpha" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Monitor" Version="0.19.1-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Network" Version="19.1.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.OperationalInsights" Version="0.18.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.PolicyInsights" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Redis" Version="3.1.1-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="1.9.0-preview" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.Azure.Management.Analysis" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Azure.Management.Automation" Version="2.0.5" />
-    <PackageReference Include="Azure.Batch" Version="8.1.1" />
-    <PackageReference Include="Microsoft.Azure.Management.Batch" Version="4.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.1.1" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Azure.Graph.RBAC" Version="3.4.0-preview" />
-    <PackageReference Include="Microsoft.Azure.Management.Compute" Version="21.0.0" />
-    <PackageReference Include="Microsoft.Azure.Management.KeyVault" Version="2.4.1-alpha" />
-    <PackageReference Include="Microsoft.Azure.Management.Network" Version="19.1.0-preview" />
+    <PackageReference Include="Microsoft.Azure.Management.Sql" Version="1.18.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Storage" Version="7.1.0-preview" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.Websites" Version="1.7.1-preview" PrivateAssets="All"/>
     <PackageReference Include="Moq" Version="4.7.145" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="xunit" Version="2.4.0" />

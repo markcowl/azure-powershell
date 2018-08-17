@@ -3,11 +3,15 @@
   <Import Project="..\..\..\tools\Common.Netcore.Dependencies.Test.targets" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
 
