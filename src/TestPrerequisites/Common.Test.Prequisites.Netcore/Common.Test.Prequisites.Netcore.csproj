@@ -34,6 +34,8 @@
     <PackageReference Include="Hyak.Common" Version="1.2.0" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Common" Version="2.2.0" PrivateAssets="All"/>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0-preview-06" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0-alpha" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Azure.KeyVault.WebKey" Version="3.0.0-alpha" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Azure.Test.HttpRecorder" Version="1.9.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Azure.Storage.DataMovement" Version="0.7.1" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.4.0" PrivateAssets="All"/>
@@ -47,6 +49,7 @@
     <PackageReference Include="Microsoft.Azure.Graph.RBAC" Version="3.4.0-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Insights" Version="0.15.0-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.Analysis" Version="2.0.3" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.Azure.Management.ApiManagement" Version="4.0.3-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.Automation" Version="2.0.5" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.Authorization" Version="2.8.0-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.ManagementGroups" Version="1.1.0-preview" PrivateAssets="All"/>
@@ -64,6 +67,7 @@
     <PackageReference Include="Microsoft.Azure.Management.Sql" Version="1.18.0-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.Storage" Version="7.1.0-preview" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Azure.Management.Websites" Version="1.7.1-preview" PrivateAssets="All"/>
+    <PackageReference Include="YamlDotNet.Signed" Version="4.2.4" PrivateAssets="All"/>
     <PackageReference Include="Moq" Version="4.7.145" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="xunit" Version="2.4.0" />

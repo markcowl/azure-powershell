@@ -25,8 +25,8 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="YamlDotNet" Version="4.2.4" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="YamlDotNet.Signed" Version="4.2.4" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
