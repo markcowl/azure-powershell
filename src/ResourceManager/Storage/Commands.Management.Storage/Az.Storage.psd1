@@ -42,7 +42,7 @@ PowerShellVersion = '5.1'
 # PowerShellHostVersion = ''
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# DotNetFrameworkVersion = ''
+DotNetFrameworkVersion = '4.7.2'
 
 # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # CLRVersion = ''
@@ -166,13 +166,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Add AssignIdentity setting support to resource mode storage account cmdlets
-    - New-AzureRmStorageAccount
-    - Set-AzureRmStorageAccount
-* Add Customer Key Support to resource mode storage account cmdlets
-    - Set-AzureRmStorageAccount
-    - New-AzureRmStorageAccountEncryptionKeySource
-'
+        ReleaseNotes = 'Initial Release'
 
         # Prerelease string of this module
         # Prerelease = ''
