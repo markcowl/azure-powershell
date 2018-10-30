@@ -218,6 +218,9 @@ namespace Microsoft.Azure.Commands.Common
         public const string CmdletGetPipeline = nameof(CmdletGetPipeline);
         public const string CmdletBeforeAPICall = nameof(CmdletBeforeAPICall);
         public const string CmdletAfterAPICall =  nameof(CmdletAfterAPICall);
+        public const string FollowingNextLink = nameof(FollowingNextLink);
+        public const string DelayBeforePolling = nameof(DelayBeforePolling);
+        public const string Polling = nameof(Polling);
     }
 
 }

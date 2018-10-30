@@ -26,13 +26,14 @@ using Microsoft.Azure.Commands.Common.Authentication;
 using System.IO;
 using Microsoft.Rest;
 using Microsoft.WindowsAzure.Commands.Utilities.Common;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Azure.Commands.Common
 {
 
     using GetEventData = Func<EventArgs>;
     using NextDelegate = Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>;
-    using SignalDelegate = Func<string, CancellationToken, Func<EventArgs>,  Task>;
+    using SignalDelegate = Func<string, CancellationToken, Func<EventArgs>, Task>;
     using EventListenerDelegate = Func<string, CancellationToken, Func<EventArgs>, Func<string, CancellationToken, Func<EventArgs>, Task>, Task>;
     using GetParameterDelegate = Func<string, string, Dictionary<string, object>, string, object>;
     using SendAsyncStepDelegate = Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Func<HttpRequestMessage, CancellationToken, Action, Func<string, CancellationToken, Func<EventArgs>, Task>, Task<HttpResponseMessage>>, Task<HttpResponseMessage>>;
@@ -48,57 +49,8 @@ namespace Microsoft.Azure.Commands.Common
     {
         public GetParameterDelegate GetParameterValue;
         public EventListenerDelegate EventListener;
-
         public ModuleLoadPipelineDelegate OnModuleLoad;
         public NewRequestPipelineDelegate OnNewRequest;
-    }
-
-
-    /// <summary>
-    /// no-op send async impl that just writes to the console.
-    /// </summary>
-    public class NoOpSendAsync
-    {
-        private static NoOpSendAsync _instance;
-        public static NoOpSendAsync Instance => NoOpSendAsync._instance ?? (NoOpSendAsync._instance = new NoOpSendAsync());
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="request">This is the HTTP Request</param>
-        /// <param name="token">This is the CancellationToken -- check this to see if the call has been cancelled.</param>
-        /// <param name="cancel">A Cancel() function that you can cancel the request</param>
-        /// <param name="signal">You can signal events with this</param>
-        /// <param name="next">Call this to continue the call</param>
-        /// <returns></returns>
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token, Action cancel, SignalDelegate signal, NextDelegate next)
-        {
-
-            Console.WriteLine($"Calling {request.RequestUri.AbsoluteUri}");
-
-            // continue with pipeline.
-            return next(request, token, cancel, signal);
-        }
-    }
-
-    public class DumpResponse
-    {
-        private static DumpResponse _instance;
-        public static DumpResponse Instance => DumpResponse._instance ?? (DumpResponse._instance = new DumpResponse());
-
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token, Action cancel, SignalDelegate signal, NextDelegate next)
-        {
-            var response = await next(request, token, cancel, signal);
-
-            // continue with pipeline.
-
-            foreach (var header in response.Headers)
-            {
-                Console.WriteLine($"output header : {header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}");
-            }
-
-            return response;
-        }
     }
 
     public class UniqueId
@@ -118,28 +70,6 @@ namespace Microsoft.Azure.Commands.Common
         }
     }
 
-    public class DumpHeaders
-    {
-        private static DumpHeaders _instance;
-        public static DumpHeaders Instance => DumpHeaders._instance ?? (DumpHeaders._instance = new DumpHeaders());
-
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token, Action cancel, SignalDelegate signal, NextDelegate next)
-        {
-            // add a header...
-            foreach (var header in request.Headers)
-            {
-                Console.WriteLine($"{header.Key} ==> {header.Value.Aggregate((c, e) => $"{c}{e}")}");
-            }
-
-            // continue with pipeline.
-            return next(request, token, cancel, signal);
-        }
-    }
-
-    internal class AuthorizeRequest
-    {
-    }
-
     internal class ContextAdapter
     {
         IProfileProvider _provider = AzureRmProfileProvider.Instance;
@@ -149,7 +79,6 @@ namespace Microsoft.Azure.Commands.Common
 
         public void OnNewRequest(Dictionary<string, object> boundParameters, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
         {
-            Console.WriteLine("Called OnNewRequest");
             appendStep(this.SendHandler(GetDefaultContext(_provider, boundParameters), AzureEnvironment.Endpoint.ResourceManager));
         }
 
@@ -195,12 +124,56 @@ namespace Microsoft.Azure.Commands.Common
 
         internal Func<HttpRequestMessage, CancellationToken, Action, SignalDelegate, NextDelegate, Task<HttpResponseMessage>> SendHandler(IAzureContext context, string resourceId)
         {
-            return (request, cancelToken, cancelAction, signal, next) =>
+            return async (request, cancelToken, cancelAction, signal, next) =>
+            {
+                await AuthorizeRequest(context, resourceId, request, cancelToken);
+                return await next(request, cancelToken, cancelAction, signal);
+            };
+        }
+
+        internal async Task AuthorizeRequest(IAzureContext context, string resourceId, HttpRequestMessage request, CancellationToken outerToken)
+        {
+            await Task.Run(() =>
             {
                 var authToken = _authenticator.Authenticate(context.Account, context.Environment, context.Tenant.Id, null, "Never", null, resourceId);
                 authToken.AuthorizeRequest((type, token) => request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(type, token));
-                return next(request, cancelToken, cancelAction, signal);
+            }, outerToken);
+        }
+    }
+
+    internal static class EventHelper
+    {
+        public static EventData CreateLogEvent(string message)
+        {
+            return new EventData
+            {
+                Id = Guid.NewGuid().ToString(),
+                Message = message
+
             };
+        }
+
+        public static async void Print( this GetEventData getEventData, SignalDelegate signal, CancellationToken token, string streamName, string eventName)
+        {
+            var eventDisplayName = SplitPascalCase(eventName).ToUpperInvariant();
+            var data = EventDataConverter.ConvertFrom(getEventData()); // also, we manually use our TypeConverter to return an appropriate type
+            if (data.Id != "Verbose" && data.Id != "Warning" && data.Id != "Debug" && data.Id != "Information" && data.Id != "Error")
+            {
+                await signal(streamName, token, () => EventHelper.CreateLogEvent($"{eventDisplayName} The contents are '{data?.Id}' and '{data?.Message}'"));
+                if (data != null)
+                {
+                    await signal(streamName, token, () => EventHelper.CreateLogEvent($"{eventDisplayName} Parameter: '{data.Parameter}'\n{eventDisplayName} RequestMessage '{data.RequestMessage}'\n{eventDisplayName} Response: '{data.ResponseMessage}'\n{eventDisplayName} Value: '{data.Value}'"));
+                    await signal(streamName, token, () => EventHelper.CreateLogEvent($"{eventDisplayName} ExtendedData Type: '{data.ExtendedData?.GetType()}'\n{eventDisplayName} ExtendedData '{data.ExtendedData}'"));
+                }
+            }
+        }
+
+        static string SplitPascalCase(string word)
+        {
+            var regex = new Regex("([a-z]+)([A-Z])");
+            var output = regex.Replace(word, "$1 $2");
+            regex = new Regex("([A-Z])([A-Z][a-z])");
+            return regex.Replace(output, "$1 $2");
         }
     }
 
@@ -217,14 +190,13 @@ namespace Microsoft.Azure.Commands.Common
     public class Module
     {
         ICommandRuntime _runtime;
-        public Module (ICommandRuntime runtime)
+        public Module(ICommandRuntime runtime)
         {
             _runtime = runtime;
         }
 
         public void OnModuleLoad(string resourceId, string moduleName, PipelineChangeDelegate prependStep, PipelineChangeDelegate appendStep)
         {
-            Console.WriteLine("Called OnModuleLoad");
             // this will be called once when the module starts up 
             // the common module can prepend or append steps to the pipeline at this point.
             prependStep(UniqueId.Instance.SendAsync);
@@ -236,14 +208,19 @@ namespace Microsoft.Azure.Commands.Common
         {
             switch (id)
             {
-                case Events.RequestCreated:
+                case Events.CmdletException:
                     {
-                        // once we're sure we're handling the event, then we can retrieve the event data. 
-                        // (this ensures that we're not doing any of the work unless we really care about the event. )
-                        var data = EventDataConverter.ConvertFrom(getEventData()); // also, we manually use our TypeConverter to return an appropriate type
-                        Console.WriteLine($"REQUEST CREATED The contents are '{data.Id}' and '{data.Message}'");
+                        var data = EventDataConverter.ConvertFrom(getEventData());
+                        await signal("Warning", token, () => EventHelper.CreateLogEvent($"Received Exception with message '{data?.Message}'"));
+                    }
 
-                        var request = data.RequestMessage as HttpRequestMessage;
+                    break;
+
+                case Events.BeforeCall:
+                    {
+                        var data = EventDataConverter.ConvertFrom(getEventData()); // also, we manually use our TypeConverter to return an appropriate type
+                        await signal("Debug", token, () => EventHelper.CreateLogEvent($"BEFORE CALL The contents are '{data?.Id}' and '{data?.Message}'"));
+                        var request = data?.RequestMessage as HttpRequestMessage;
                         if (request != null)
                         {
                             // alias/casting the request message to an HttpRequestMessage is necessary so that we can 
@@ -251,8 +228,7 @@ namespace Microsoft.Azure.Commands.Common
 
                             // at this point, we can do with the request  
                             request.Headers.Add("x-ms-peekaboo", "true");
-                            await request.Content.CopyToAsync(new MemoryStream());
-                            Console.WriteLine(GeneralUtilities.GetLog(request));
+                            await signal("Debug", token, () => EventHelper.CreateLogEvent(GeneralUtilities.GetLog(request)));
                         }
                     }
                     break;
@@ -262,40 +238,18 @@ namespace Microsoft.Azure.Commands.Common
                         // once we're sure we're handling the event, then we can retrieve the event data. 
                         // (this ensures that we're not doing any of the work unless we really care about the event. )
                         var data = EventDataConverter.ConvertFrom(getEventData());
-                        Console.WriteLine($"RESPONSE CREATED The contents are '{data.Id}' and '{data.Message}'");
-                        var request = data.RequestMessage as HttpRequestMessage;
-                        if (request != null)
-                        {
-                            // alias/casting the request message to an HttpRequestMessage is necessary so that we can 
-                            // support other protocols later on. (ie, JSONRPC, MQTT, GRPC ,AMPQ, Etc..)
-
-                            // at this point, we can do with the request  
-                            request.Headers.Add("x-ms-peekaboo", "true");
-                            Console.WriteLine(GeneralUtilities.GetLog(request));
-                        }
-
-                        var response = data.ResponseMessage as HttpResponseMessage;
+                        await signal("Debug", token, () => EventHelper.CreateLogEvent($"RESPONSE CREATED The contents are '{data?.Id}' and '{data?.Message}'"));
+                        var response = data?.ResponseMessage as HttpResponseMessage;
                         if (response != null)
                         {
-                           Console.WriteLine(GeneralUtilities.GetLog(response));
+                            await signal("Debug", token, () => EventHelper.CreateLogEvent(GeneralUtilities.GetLog(response)));
                         }
-                    }
-                    break;
-
-                case "Tracing":
-                    {
-
-                        var data = EventDataConverter.ConvertFrom(getEventData());
-                        // this was our own code above that sent this message.
-                        Console.WriteLine($"TRACING EVENT; The contents are '{data.Id}' and '{data.Message}'");
                     }
                     break;
 
                 default:
-                    // events we aren't actively looking at...
-                    Console.WriteLine($"Skipped Event Handling for {id}");
-
-                    // you'll note that by not calling getEventData() 
+                    // By default, just print out event details
+                    getEventData.Print(signal, token, "Verbose", id);
                     break;
             }
         }
