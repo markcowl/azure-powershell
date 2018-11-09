@@ -34,12 +34,15 @@ namespace Microsoft.Azure.Commands.Network
 
         public bool IsVirtualNetworkPresent(string resourceGroupName, string name)
         {
+            this.NetworkClient.DebugLogger("Checking for presence of network");
             try
             {
                 GetVirtualNetwork(resourceGroupName, name);
             }
             catch (Microsoft.Rest.Azure.CloudException exception)
             {
+
+                this.NetworkClient.DebugLogger("Got execption while checking network presence");
                 if (exception.Response.StatusCode == HttpStatusCode.NotFound)
                 {
                     // Resource is not present
@@ -49,16 +52,24 @@ namespace Microsoft.Azure.Commands.Network
                 throw;
             }
 
+            this.NetworkClient.DebugLogger("Network was found");
             return true;
         }
 
         public PSVirtualNetwork GetVirtualNetwork(string resourceGroupName, string name, string expandResource = null)
         {
+            this.NetworkClient.DebugLogger("Calloing network Get");
+            var vnt = this.VirtualNetworkClient.GetWithHttpMessagesAsync(resourceGroupName, name).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.NetworkClient.DebugLogger("Doing second network Get");
             var vnet = this.VirtualNetworkClient.Get(resourceGroupName, name, expandResource);
+            this.NetworkClient.DebugLogger("End calling network Get");
 
+            this.NetworkClient.DebugLogger("Begin network mapping");
+            NetworkResourceManagerProfile.Logger = this.NetworkClient.DebugLogger;
             var psVirtualNetwork = NetworkResourceManagerProfile.Mapper.Map<PSVirtualNetwork>(vnet);
             psVirtualNetwork.ResourceGroupName = resourceGroupName;
 
+            this.NetworkClient.DebugLogger("Created network mapping");
             psVirtualNetwork.Tag =
                 TagsConversionHelper.CreateTagHashtable(vnet.Tags);
 
@@ -67,6 +78,7 @@ namespace Microsoft.Azure.Commands.Network
                 psVirtualNetwork.DhcpOptions = new PSDhcpOptions();
             }
 
+            this.NetworkClient.DebugLogger("Network object fully mapped");
             return psVirtualNetwork;
         }
 

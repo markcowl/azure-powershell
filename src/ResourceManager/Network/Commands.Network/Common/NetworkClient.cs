@@ -32,6 +32,40 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Commands.Network
 {
+    public class PrintHandler : DelegatingHandler, ICloneable
+    {
+        public PrintHandler(Action<string> logger)
+        {
+            Logger = logger;
+        }
+
+        Action<string> Logger { get; set; }
+        public void Apply<T>(ServiceClient<T> client) where T: ServiceClient<T>
+        {
+            var innermost = client.HttpMessageHandlers.Any((s) => s is PrintHandler || (s is DelegatingHandler && ((DelegatingHandler)s).InnerHandler is PrintHandler))? null : client.HttpMessageHandlers.LastOrDefault((s) => s is DelegatingHandler) as DelegatingHandler;
+            if (innermost != null)
+            {
+                this.InnerHandler = innermost.InnerHandler;
+                innermost.InnerHandler = this;
+            }
+        }
+
+        public object Clone()
+        {
+            return new PrintHandler(Console.WriteLine);
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Logger("---------------- Logged Request ------------------");
+            Logger(request.AsFormattedString());
+
+            var response =  await base.SendAsync(request, cancellationToken);
+            Logger("---------------- Logged Response ------------------");
+            Logger(response.AsFormattedString());
+            return response;
+        }
+    }
     public partial class NetworkClient
     {
         public INetworkManagementClient NetworkManagementClient { get; set; }
@@ -42,9 +76,24 @@ namespace Microsoft.Azure.Commands.Network
 
         public Action<string> WarningLogger { get; set; }
 
-        public NetworkClient(IAzureContext context)
-            : this(AzureSession.Instance.ClientFactory.CreateArmClient<NetworkManagementClient>(context, AzureEnvironment.Endpoint.ResourceManager))
+        public Action<string> DebugLogger { get; set; }
+
+        public NetworkClient(IAzureContext context, Action<string> debugLogger)
+            : this()
         {
+            var printer = new PrintHandler(Console.WriteLine);
+            var client = AzureSession.Instance.ClientFactory.CreateArmClient<NetworkManagementClient>(context, AzureEnvironment.Endpoint.ResourceManager);
+            printer.Apply(client);
+            this.NetworkManagementClient = client;
+            debugLogger($"Finished creating network client with ua: '{client.UserAgent}', timeout: '{client.HttpClient.Timeout}'");
+            foreach (var header in client.HttpClient.DefaultRequestHeaders)
+            {
+                debugLogger($"header: {header.Key} = {header.Value.ToArray()}");
+            }
+            foreach (var handler in client.HttpMessageHandlers )
+            {
+                debugLogger($"Handler: {handler.GetType()}");
+            }
         }
 
         public NetworkClient(INetworkManagementClient NetworkManagementClient)

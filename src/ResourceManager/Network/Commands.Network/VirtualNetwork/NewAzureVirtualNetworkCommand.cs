@@ -108,6 +108,7 @@ namespace Microsoft.Azure.Commands.Network
 
         public override void Execute()
         {
+            WriteDebugWithTimestamp("Begin Cmdlet Execution: New-AzureRmVirtualNetwork");
             base.Execute();
             var present = this.IsVirtualNetworkPresent(this.ResourceGroupName, this.Name);
             ConfirmAction(
@@ -121,10 +122,12 @@ namespace Microsoft.Azure.Commands.Network
                     WriteObject(virtualNetwork);
                 },
                 () => present);
+            WriteDebugWithTimestamp("End Cmdlet Exceution: New-AzureRmVirtualNetwork");
         }
 
         private PSVirtualNetwork CreateVirtualNetwork()
         {
+            WriteDebugWithTimestamp("Begin MethodExecution:  CreateVirtualNetwork");
             var vnet = new PSVirtualNetwork();
             vnet.Name = this.Name;
             vnet.ResourceGroupName = this.ResourceGroupName;
@@ -151,10 +154,12 @@ namespace Microsoft.Azure.Commands.Network
             var vnetModel = NetworkResourceManagerProfile.Mapper.Map<MNM.VirtualNetwork>(vnet);
             vnetModel.Tags = TagsConversionHelper.CreateTagDictionary(this.Tag, validate: true);
 
+            WriteDebugWithTimestamp("[CreateVirtualNetwork]: Making REST Call");
             // Execute the Create VirtualNetwork call
             this.VirtualNetworkClient.CreateOrUpdate(this.ResourceGroupName, this.Name, vnetModel);
 
             var getVirtualNetwork = this.GetVirtualNetwork(this.ResourceGroupName, this.Name);
+            WriteDebugWithTimestamp("End Method Exceution: CreateVirtualNetwork");
 
             return getVirtualNetwork;
         }

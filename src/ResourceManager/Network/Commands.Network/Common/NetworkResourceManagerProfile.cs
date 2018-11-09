@@ -21,10 +21,13 @@ namespace Microsoft.Azure.Commands.Network
     using CNM = Microsoft.Azure.Commands.Network.Models;
     using MNM = Microsoft.Azure.Management.Network.Models;
     using Microsoft.WindowsAzure.Commands.Utilities.Common;
+    using System;
 
     public class NetworkResourceManagerProfile : Profile
     {
         private static IMapper _mapper = null;
+
+        public static Action<string> Logger { get; set; } = Console.WriteLine;
 
         private static readonly object _lock = new object();
 
@@ -51,6 +54,7 @@ namespace Microsoft.Azure.Commands.Network
 
         private static void Initialize()
         {
+            Logger("[Mapper]: Initializing conguration");
             var config = new MapperConfiguration(cfg => {
                 cfg.AddProfile<NetworkResourceManagerProfile>();
                 cfg.CreateMap<CNM.PSResourceId, MNM.SubResource>();
@@ -94,6 +98,7 @@ namespace Microsoft.Azure.Commands.Network
                 // MNM to CNM
                 cfg.CreateMap<MNM.DhcpOptions, CNM.PSDhcpOptions>();
                 cfg.CreateMap<MNM.Subnet, CNM.PSSubnet>()
+                    .ForSourceMember(src => src.AddressPrefixes, opt => opt.Ignore())
                     .ForMember(dest => dest.AddressPrefix, opt => opt.Ignore())
                     .AfterMap((src, dest) =>
                     {
@@ -908,7 +913,9 @@ namespace Microsoft.Azure.Commands.Network
                 cfg.CreateMap<MNM.VirtualNetworkTap, CNM.PSVirtualNetworkTap>();
             });
 
+            Logger("[Mapper]: end create configuration");
             _mapper = config.CreateMapper();
+            Logger("[Mapper]: Done creating mapper");
         }
     }
 }

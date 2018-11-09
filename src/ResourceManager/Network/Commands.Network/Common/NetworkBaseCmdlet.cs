@@ -29,18 +29,24 @@ namespace Microsoft.Azure.Commands.Network
         public const string All = "All";
         public const string DisabledRuleGroupsAlias = "DisabledRuleGroups";
 
+        public NetworkBaseCmdlet() : base()
+        {
+            NetworkResourceManagerProfile.Logger = NetworkClient.DebugLogger;
+        }
+
         public NetworkClient NetworkClient
         {
             get
             {
                 if (_networkClient == null)
                 {
-                    _networkClient = new NetworkClient(DefaultProfile.DefaultContext);
+                    _networkClient = new NetworkClient(DefaultProfile.DefaultContext, WriteDebugWithTimestamp);
                 }
 
                 this._networkClient.VerboseLogger = WriteVerboseWithTimestamp;
                 this._networkClient.ErrorLogger = WriteErrorWithTimestamp;
                 this._networkClient.WarningLogger = WriteWarningWithTimestamp;
+                this._networkClient.DebugLogger = WriteDebugWithTimestamp;
                 return _networkClient;
             }
 
