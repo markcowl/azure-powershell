@@ -392,6 +392,15 @@ function getAssetName {
 
 <#
 .SYNOPSIS
+Gets the next asset as a GUID, or sotres and returns a new guid in the asset list
+#>
+
+function Get-AssetGuid {
+    return ([Microsoft.Azure.Test.HttpRecorder.HttpMockServer]::GetAssetGuid((getTestName)))
+}
+
+<#
+.SYNOPSIS
 Gets the name of the test
 #>
 function getTestName
