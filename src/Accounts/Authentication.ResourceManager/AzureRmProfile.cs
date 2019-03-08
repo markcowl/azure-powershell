@@ -584,17 +584,23 @@ namespace Microsoft.Azure.Commands.Common.Authentication.Models
             this.Clear();
             foreach (var environment in other.EnvironmentTable.Where((e) => !AzureEnvironment.PublicEnvironments.ContainsKey(e.Key)))
             {
-                this.EnvironmentTable.Add(environment.Key, environment.Value);
+                var copyEnvironment = new AzureEnvironment();
+                copyEnvironment.CopyFrom(environment.Value);
+                EnvironmentTable.Add(environment.Key, copyEnvironment);
             }
 
             foreach (var context in other.Contexts)
             {
-                TrySetContext(context.Key, context.Value);
+                var copyContext = new AzureContext();
+                copyContext.CopyFrom(context.Value);
+                TrySetContext(context.Key, copyContext);
             }
 
             if (other.DefaultContext != null)
             {
-                this.TrySetDefaultContext(other.DefaultContext);
+                var defaultContext = new AzureContext();
+                defaultContext.CopyFrom(other.DefaultContext);
+                this.TrySetDefaultContext(defaultContext);
             }
 
             this.CopyPropertiesFrom(other);

@@ -25,6 +25,8 @@ using System;
 using System.Linq;
 using System.Collections.ObjectModel;
 using Microsoft.Azure.Commands.Profile.Properties;
+using System.Collections.Generic;
+using Microsoft.WindowsAzure.Commands.Utilities.Common;
 
 namespace Microsoft.Azure.Commands.Profile
 {
@@ -35,7 +37,7 @@ namespace Microsoft.Azure.Commands.Profile
     [OutputType(typeof(PSAzureContext))]
     public class GetAzureRMContextCommand : AzureRMCmdlet, IDynamicParameters
     {
-        public const string ListAllParameterSet = "ListAllContexts", GetSingleParameterSet = "GetSingleContext";
+        public const string ListAllParameterSet = "ListAllContexts", GetSingleParameterSet = "GetSingleContext", SubscriptionParameterSet = "GetBySubscription";
         /// <summary>
         /// Gets the current default context.
         /// </summary>
@@ -52,8 +54,13 @@ namespace Microsoft.Azure.Commands.Profile
             }
         }
 
-        [Parameter(Mandatory =true, ParameterSetName = ListAllParameterSet, HelpMessage ="List all available contexts in the current session.")]
+        [Parameter(Mandatory = true, ParameterSetName = ListAllParameterSet, HelpMessage = "List all available contexts in the current session.")]
         public SwitchParameter ListAvailable { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = ListAllParameterSet, HelpMessage = "List contexts in the current session for the given subscription name or id.")]
+        [Parameter(Mandatory = true, ParameterSetName = SubscriptionParameterSet, HelpMessage = "List contexts in the current session for the given subscription name or id.")]
+        [SupportsWildcards]
+        public string Subscription { get; set; }
 
         public override void ExecuteCmdlet()
         {
@@ -63,36 +70,42 @@ namespace Microsoft.Azure.Commands.Profile
                 return;
             }
 
-            if (ListAvailable.IsPresent)
+            var profile = DefaultProfile as AzureRmProfile;
+            var context = DefaultContext;
+            Func<KeyValuePair<string, IAzureContext>, bool> contextFilter = c => true;
+            if (this.IsParameterBound(c => c.Subscription))
             {
-                var profile = DefaultProfile as AzureRmProfile;
-                if (profile != null && profile.Contexts != null)
+                var matcher = new WildcardPattern(Subscription);
+                contextFilter = ctx => matcher.IsMatch(ctx.Value?.Subscription?.Id) 
+                || matcher.IsMatch(ctx.Value?.Subscription?.Name);
+            }
+
+            if (ListAvailable.IsPresent || this.IsParameterBound(c => c.Subscription))
+            {
+                if (profile != null && profile.Contexts.Any(contextFilter))
                 {
-                    foreach( var context in profile.Contexts)
+                    foreach (var ctx in profile.Contexts.Where(contextFilter))
                     {
-                        WriteContext(context.Value, context.Key);
+                        WriteContext(ctx.Value, ctx.Key);
                     }
                 }
 
+                return;
             }
-            else
+
+            if (profile != null && MyInvocation.BoundParameters.ContainsKey("Name"))
             {
-                var profile = DefaultProfile as AzureRmProfile;
-                var context = DefaultContext;
-                if (profile != null && MyInvocation.BoundParameters.ContainsKey("Name"))
+                var key = MyInvocation.BoundParameters["Name"] as string;
+                if (profile.Contexts != null && profile.Contexts.ContainsKey(key))
                 {
-                    var key = MyInvocation.BoundParameters["Name"] as string;
-                    if (profile.Contexts != null && profile.Contexts.ContainsKey(key))
-                    {
-                        context = profile.Contexts[key];
-                        WriteContext(context, key);
-                    }
+                    context = profile.Contexts[key];
+                    WriteContext(context, key);
                 }
-                else
-                {
-                    WriteContext(context, (profile)?.DefaultContextKey);
-                }
+
+                return;
             }
+
+            WriteContext(context, (profile)?.DefaultContextKey);
         }
 
         void WriteContext(IAzureContext azureContext, string name)
