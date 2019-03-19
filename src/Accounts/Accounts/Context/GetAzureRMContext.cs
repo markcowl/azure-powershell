@@ -27,17 +27,19 @@ using System.Collections.ObjectModel;
 using Microsoft.Azure.Commands.Profile.Properties;
 using System.Collections.Generic;
 using Microsoft.WindowsAzure.Commands.Utilities.Common;
+using Microsoft.Azure.Commands.Profile.Common;
 
 namespace Microsoft.Azure.Commands.Profile
 {
     /// <summary>
     /// Cmdlet to get current context.
     /// </summary>
-    [Cmdlet("Get", ResourceManager.Common.AzureRMConstants.AzureRMPrefix + "Context", DefaultParameterSetName = GetSingleParameterSet)]
+    [Cmdlet("Get", ResourceManager.Common.AzureRMConstants.AzureRMPrefix + "Context", DefaultParameterSetName = SubscriptionParameterSet)]
     [OutputType(typeof(PSAzureContext))]
-    public class GetAzureRMContextCommand : AzureRMCmdlet, IDynamicParameters
+    public class GetAzureRMContextCommand : AzureRMCmdlet
     {
-        public const string ListAllParameterSet = "ListAllContexts", GetSingleParameterSet = "GetSingleContext", SubscriptionParameterSet = "GetBySubscription";
+        public const string ListAllParameterSet = "ListAllContexts", GetSingleParameterSet = "GetSingleContext", 
+            SubscriptionParameterSet = "GetBySubscription", NameParameterSet = "GetByName";
         /// <summary>
         /// Gets the current default context.
         /// </summary>
@@ -57,10 +59,21 @@ namespace Microsoft.Azure.Commands.Profile
         [Parameter(Mandatory = true, ParameterSetName = ListAllParameterSet, HelpMessage = "List all available contexts in the current session.")]
         public SwitchParameter ListAvailable { get; set; }
 
-        [Parameter(Mandatory = false, ParameterSetName = ListAllParameterSet, HelpMessage = "List contexts in the current session for the given subscription name or id.")]
-        [Parameter(Mandatory = true, ParameterSetName = SubscriptionParameterSet, HelpMessage = "List contexts in the current session for the given subscription name or id.")]
+        [Parameter(Position = 0, Mandatory = true, ParameterSetName = NameParameterSet, HelpMessage = "The name of the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
         [SupportsWildcards]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = SubscriptionParameterSet, HelpMessage = "List contexts in the current session for the given subscription name or id.")]
+        [SupportsWildcards]
+        [ContextCompleter]
         public string Subscription { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = SubscriptionParameterSet, HelpMessage = "List contexts in the current session for the given subscription name or id.")]
+        [SupportsWildcards]
+        [ContextCompleter]
+        public string Account { get; set; }
 
         public override void ExecuteCmdlet()
         {
@@ -72,34 +85,33 @@ namespace Microsoft.Azure.Commands.Profile
 
             var profile = DefaultProfile as AzureRmProfile;
             var context = DefaultContext;
-            Func<KeyValuePair<string, IAzureContext>, bool> contextFilter = c => true;
-            if (this.IsParameterBound(c => c.Subscription))
+            string name = null;
+
+            if (this.IsParameterBound(c => c.Name))
             {
-                var matcher = new WildcardPattern(Subscription);
-                contextFilter = ctx => matcher.IsMatch(ctx.Value?.Subscription?.Id) 
-                || matcher.IsMatch(ctx.Value?.Subscription?.Name);
+                name = Name;
             }
 
-            if (ListAvailable.IsPresent || this.IsParameterBound(c => c.Subscription))
+
+            var container = DefaultProfile as AzureRmProfile;
+            IEnumerable<KeyValuePair<string, IAzureContext>> contexts = container?.Contexts;
+            if (contexts.Any())
             {
-                if (profile != null && profile.Contexts.Any(contextFilter))
+                contexts = contexts
+                    ?.Filter(nameof(Name), Name, MyInvocation.BoundParameters, nameof(Name), (pair) => pair.Key)
+                    ?.Filter(nameof(Subscription), Subscription, MyInvocation.BoundParameters, nameof(Subscription), (pair) => pair.Value?.Subscription?.Name, pair2 => pair2.Value?.Subscription?.Id)
+                    ?.Filter(nameof(Account), Account, MyInvocation.BoundParameters, nameof(Account), (pair) => pair.Value?.Account?.Id);
+            }
+
+            if (ListAvailable.IsPresent || this.IsParameterBound(c=> c.Account) 
+                || this.IsParameterBound(c => c.Subscription) || this.IsParameterBound(c => c.Name))
+            {
+                if (contexts != null && contexts.Any())
                 {
-                    foreach (var ctx in profile.Contexts.Where(contextFilter))
+                    foreach (var ctx in contexts)
                     {
                         WriteContext(ctx.Value, ctx.Key);
                     }
-                }
-
-                return;
-            }
-
-            if (profile != null && MyInvocation.BoundParameters.ContainsKey("Name"))
-            {
-                var key = MyInvocation.BoundParameters["Name"] as string;
-                if (profile.Contexts != null && profile.Contexts.ContainsKey(key))
-                {
-                    context = profile.Contexts[key];
-                    WriteContext(context, key);
                 }
 
                 return;

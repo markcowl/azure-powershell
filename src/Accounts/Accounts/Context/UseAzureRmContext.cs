@@ -28,6 +28,7 @@ using Microsoft.WindowsAzure.Commands.Utilities.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
 
 namespace Microsoft.Azure.Commands.Profile
@@ -41,20 +42,62 @@ namespace Microsoft.Azure.Commands.Profile
     {
         private const string SubscriptionParameterSet = "Subscription";
         private const string ContextParameterSet = "Context";
-        private const string SubscriptionObjectParameterSet = "SubscriptionObject";
-        private const string TenantObjectParameterSet = "TenantObject";
-        private const string TenantNameParameterSet = "TenantNameOnly";
 
 
         [Parameter(Mandatory = true, HelpMessage = "The script to run under the given context", Position = 0)]
         [ValidateNotNullOrEmpty]
         public ScriptBlock ScriptBlock { get; set; }
 
+        [Parameter(Mandatory = true, ParameterSetName = ContextParameterSet, HelpMessage = "The name of the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
+        [SupportsWildcards]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = SubscriptionParameterSet, HelpMessage = "The subscription containing the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
+        [SupportsWildcards]
+        public string Subscription { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = SubscriptionParameterSet, HelpMessage = "The account name containing the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
+        [SupportsWildcards]
+        public string Account { get; set; }
+
 
         public override void ExecuteCmdlet()
         {
+            string name = null;
+
+            if (this.IsParameterBound(c => c.Name))
+            {
+                name = Name;
+            }
+
+
+            var container = DefaultProfile as AzureRmProfile;
+            if (container != null)
+            {
+                var contexts = container.Contexts
+                    ?.Filter(nameof(Name), Name, MyInvocation.BoundParameters, nameof(Name), (pair) => pair.Key)
+                    ?.Filter(nameof(Subscription), Subscription, MyInvocation.BoundParameters, nameof(Subscription), (pair) => pair.Value?.Subscription?.Name, pair2 => pair2.Value?.Subscription?.Id)
+                    ?.Filter(nameof(Account), Account, MyInvocation.BoundParameters, nameof(Account), (pair) => pair.Value?.Account?.Id);
+
+                if (contexts.Count() == 1)
+                {
+                    name = contexts.First().Key;
+                }
+            }
+
             AzureRmProfile profile = new AzureRmProfile();
             TryCopyProfile(DefaultProfile, profile);
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                profile.DefaultContextKey = name;
+            }
+
             var defaultParameterValues = new Hashtable();
             defaultParameterValues.Add("*-Az*:DefaultProfile", profile);
             defaultParameterValues.Add("Set-AzContext:Context", profile.DefaultContext);

@@ -12,6 +12,7 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------------
 
+using Microsoft.Azure.Commands.Common.Authentication.Models;
 using Microsoft.Azure.Commands.Profile.Common;
 using Microsoft.Azure.Commands.Profile.Models;
 // TODO: Remove IfDef
@@ -19,19 +20,40 @@ using Microsoft.Azure.Commands.Profile.Models;
 using Microsoft.Azure.Commands.Profile.Models.Core;
 #endif
 using Microsoft.Azure.Commands.Profile.Properties;
+using Microsoft.WindowsAzure.Commands.Utilities.Common;
+using System.Linq;
 using System.Management.Automation;
 
 namespace Microsoft.Azure.Commands.Profile.Context
 {
     [Cmdlet("Select", ResourceManager.Common.AzureRMConstants.AzureRMPrefix + "Context", SupportsShouldProcess = true, DefaultParameterSetName = InputObjectParameterSet)]
     [OutputType(typeof(PSAzureContext))]
-    public class SelectAzureRmContext : AzureContextModificationCmdlet, IDynamicParameters
+    public class SelectAzureRmContext : AzureContextModificationCmdlet
     {
         public const string InputObjectParameterSet = "SelectByInputObject";
         public const string ContextNameParameterSet = "SelectByName";
+        public const string ContextSelectParameterSet = "SelectByAccountSub";
         [Parameter(Mandatory =true, ParameterSetName = InputObjectParameterSet, ValueFromPipeline =true, HelpMessage ="A context object, normally passed through the pipeline.")]
         [ValidateNotNullOrEmpty]
         public PSAzureContext InputObject { get; set; }
+
+        [Parameter(Position=0, Mandatory = true, ParameterSetName = ContextNameParameterSet, HelpMessage = "The name of the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
+        [SupportsWildcards]
+        public string Name { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = ContextSelectParameterSet, HelpMessage = "The subscription containing the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
+        [SupportsWildcards]
+        public string Subscription { get; set; }
+
+        [Parameter(Mandatory = false, ParameterSetName = ContextSelectParameterSet, HelpMessage = "The account name containing the needed context.")]
+        [ValidateNotNullOrEmpty]
+        [ContextCompleter]
+        [SupportsWildcards]
+        public string Account { get; set; }
 
         public object GetDynamicParameters()
         {
@@ -52,9 +74,25 @@ namespace Microsoft.Azure.Commands.Profile.Context
             {
                     name = InputObject?.Name;
             }
-            else if (MyInvocation.BoundParameters.ContainsKey("Name"))
+
+            if (this.IsParameterBound(c=> c.Name))
             {
-                name = MyInvocation.BoundParameters["Name"] as string;
+                name = Name;
+            }
+
+
+            var container = DefaultProfile as AzureRmProfile;
+            if (container != null)
+            {
+                var contexts = container.Contexts
+                    ?.Filter(nameof(Name), Name, MyInvocation.BoundParameters, nameof(Name), (pair) => pair.Key)
+                    ?.Filter(nameof(Subscription), Subscription, MyInvocation.BoundParameters, nameof(Subscription), (pair) => pair.Value?.Subscription?.Name, pair2 => pair2.Value?.Subscription?.Id)
+                    ?.Filter(nameof(Account), Account, MyInvocation.BoundParameters, nameof(Account), (pair) => pair.Value?.Account?.Id);
+
+                if (contexts.Count() == 1)
+                {
+                    name = contexts.First().Key;
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(name))
