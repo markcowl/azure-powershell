@@ -53,7 +53,7 @@ DotNetFrameworkVersion = '4.7.2'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(@{ModuleName = 'Az.Accounts'; ModuleVersion = '1.3.1'; })
+RequiredModules = @(@{ModuleName = 'Az.Accounts'; ModuleVersion = '1.4.0'; })
 
 # Assemblies that must be loaded prior to importing this module
 RequiredAssemblies = '.\Microsoft.Azure.Management.FrontDoor.dll'
@@ -86,7 +86,9 @@ CmdletsToExport = 'New-AzFrontDoor', 'Get-AzFrontDoor', 'Set-AzFrontDoor',
                'Get-AzFrontDoorFireWallPolicy', 'Set-AzFrontDoorFireWallPolicy', 
                'Remove-AzFrontDoorFireWallPolicy', 
                'New-AzFrontDoorRuleGroupOverrideObject', 
-               'Remove-AzFrontDoorContent'
+               'Remove-AzFrontDoorContent',
+	       'Enable-AzFrontDoorCustomDomainHttps','Disable-AzFrontDoorCustomDomainHttps',
+               'Get-AzFrontDoorFrontendEndpoint'
 
 # Variables to export from this module
 # VariablesToExport = @()
