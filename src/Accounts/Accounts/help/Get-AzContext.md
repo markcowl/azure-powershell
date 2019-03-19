@@ -12,14 +12,20 @@ Gets the metadata used to authenticate Azure Resource Manager requests.
 
 ## SYNTAX
 
-### GetSingleContext (Default)
+### GetBySubscription (Default)
 ```
-Get-AzContext [-DefaultProfile <IAzureContextContainer>] [[-Name] <String>] [<CommonParameters>]
+Get-AzContext [-Subscription <String>] [-Account <String>] [-DefaultProfile <IAzureContextContainer>]
+ [<CommonParameters>]
 ```
 
 ### ListAllContexts
 ```
 Get-AzContext [-ListAvailable] [-DefaultProfile <IAzureContextContainer>] [<CommonParameters>]
+```
+
+### GetByName
+```
+Get-AzContext [-Name] <String> [-DefaultProfile <IAzureContextContainer>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -56,6 +62,21 @@ In this example, all currently available contexts are displayed.  The user may s
 
 ## PARAMETERS
 
+### -Account
+List contexts in the current session for the given subscription name or id.
+
+```yaml
+Type: System.String
+Parameter Sets: GetBySubscription
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -DefaultProfile
 The credentials, account, tenant and subscription used for communication with azure
 
@@ -91,11 +112,26 @@ The name of the context
 
 ```yaml
 Type: System.String
-Parameter Sets: GetSingleContext
+Parameter Sets: GetByName
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Subscription
+List contexts in the current session for the given subscription name or id.
+
+```yaml
+Type: System.String
+Parameter Sets: GetBySubscription
 Aliases:
 
 Required: False
-Position: 0
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -69,9 +69,6 @@ Gets tenants that are authorized for the current user.
 ### [Import-AzContext](Import-AzContext.md)
 Loads Azure authentication information from a file.
 
-### [Register-AzModule](Register-AzModule.md)
-Internal-only cmdlet that provides runtime support for AUtoRest generated cmdlets.
-
 ### [Remove-AzContext](Remove-AzContext.md)
 Remove a context from the set of available contexts
 
@@ -105,3 +102,5 @@ Sets properties for an Azure environment.
 ### [Uninstall-AzureRm](Uninstall-AzureRm.md)
 Removes all AzureRm modules from a machine.
 
+### [Use-AzContext](Set-AzContext.md)
+Executes a ScriptBlock using a selected context (account and subscription).

@@ -20,8 +20,14 @@ Select-AzContext -InputObject <PSAzureContext> [-Scope <ContextModificationScope
 
 ### SelectByName
 ```
-Select-AzContext [-Scope <ContextModificationScope>] [-DefaultProfile <IAzureContextContainer>] [-WhatIf]
- [-Confirm] [-Name] <String> [<CommonParameters>]
+Select-AzContext [-Name] <String> [-Scope <ContextModificationScope>]
+ [-DefaultProfile <IAzureContextContainer>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### SelectByAccountSub
+```
+Select-AzContext [-Subscription <String>] [-Account <String>] [-Scope <ContextModificationScope>]
+ [-DefaultProfile <IAzureContextContainer>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -42,6 +48,21 @@ Work    test@outlook.com    Subscription1       AzureCloud          xxxxxxxx-x..
 Target future Azure PowerShell cmdlets at the account, tenant, and subscription in the 'Work' context.
 
 ## PARAMETERS
+
+### -Account
+The account nameto select.
+
+```yaml
+Type: System.String
+Parameter Sets: SelectByAccountSub
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -DefaultProfile
 The credentials, tenant and subscription used for communication with azure
@@ -96,6 +117,21 @@ Type: Microsoft.Azure.Commands.Profile.Common.ContextModificationScope
 Parameter Sets: (All)
 Aliases:
 Accepted values: Process, CurrentUser
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Subscription
+The subscription to select.
+
+```yaml
+Type: System.String
+Parameter Sets: SelectByAccountSub
+Aliases:
 
 Required: False
 Position: Named
