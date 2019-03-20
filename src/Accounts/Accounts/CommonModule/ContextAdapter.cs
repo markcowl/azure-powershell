@@ -175,10 +175,10 @@ namespace Microsoft.Azure.Commands.Common
         {
             IAzureContextContainer profile;
             var contextConverter = new AzureContextConverter();
-            if (invocationInfo.BoundParameters.ContainsKey("DefaultContext")
-                && contextConverter.CanConvertFrom(invocationInfo.BoundParameters["DefaultContext"], typeof(IAzureContextContainer)))
+            if (invocationInfo.BoundParameters.ContainsKey("DefaultProfile")
+                && contextConverter.CanConvertFrom(invocationInfo.BoundParameters["DefaultProfile"], typeof(IAzureContextContainer)))
             {
-                profile = contextConverter.ConvertFrom(invocationInfo.BoundParameters["DefaultContext"], typeof(IAzureContextContainer), CultureInfo.InvariantCulture, true) as IAzureContextContainer;
+                profile = contextConverter.ConvertFrom(invocationInfo.BoundParameters["DefaultProfile"], typeof(IAzureContextContainer), CultureInfo.InvariantCulture, true) as IAzureContextContainer;
             }
             else
             {
