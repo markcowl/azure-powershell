@@ -13,6 +13,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 using Microsoft.WindowsAzure.Commands.Utilities.Common;
@@ -26,10 +27,11 @@ namespace Microsoft.Azure.Commands.Common
     [Cmdlet(VerbsCommon.Select, @"AzProfile", SupportsShouldProcess = true)]
     public class SelectAzProfile : PSCmdlet
     {
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = true, Position = 0 )]
         [Alias("ProfileName")]
-        [ValidateNotNullOrEmpty]
+        [ValidateSet("hybrid-2019", "latest", "sample")]
         public string Name { get; set; }
+
 
         protected override void ProcessRecord()
         {
