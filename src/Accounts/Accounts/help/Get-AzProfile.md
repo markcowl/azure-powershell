@@ -1,14 +1,14 @@
 ---
 external help file: Microsoft.Azure.PowerShell.Cmdlets.Accounts.dll-Help.xml
 Module Name: Az.Accounts
-online version:
+online version: https://docs.microsoft.com/en-us/powershell/module/az.accounts/get-azprofile
 schema: 2.0.0
 ---
 
 # Get-AzProfile
 
 ## SYNOPSIS
-{{Fill in the Synopsis}}
+Gets the profiles available in all modules on the machine, or for specifically selected modules.
 
 ## SYNTAX
 
@@ -17,21 +17,23 @@ Get-AzProfile [-ModuleName <String[]>] [-ListAvailable] [-WhatIf] [-Confirm] [<C
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Gets the available profiles for modules in the curent session and in the PSModulePath
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Get-AzProfile
+hybrid-2019
+latest
 ```
 
-{{ Add example description here }}
+List the available profiles.
 
 ## PARAMETERS
 
 ### -ListAvailable
-{{Fill ListAvailable Description}}
+Get all the available profiles
 
 ```yaml
 Type: SwitchParameter
@@ -46,7 +48,7 @@ Accept wildcard characters: False
 ```
 
 ### -ModuleName
-{{Fill ModuleName Description}}
+If checking for the profile supported in one or more specific modules, the name of the moduels to check.  Named modules must be loaded in the curretn session or in the PSModulePath.
 
 ```yaml
 Type: String[]
@@ -76,8 +78,7 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+Shows changes that would occur if the cmdlet were executed, without making any of these changes.
 
 ```yaml
 Type: SwitchParameter

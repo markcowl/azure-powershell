@@ -1,7 +1,7 @@
 ---
 external help file: Microsoft.Azure.PowerShell.Cmdlets.Accounts.dll-Help.xml
 Module Name: Az.Accounts
-online version:
+online version: https://docs.microsoft.com/en-us/powershell/module/az.accounts/select-azprofile
 schema: 2.0.0
 ---
 
@@ -17,21 +17,22 @@ Select-AzProfile [-Name] <String> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Select a default profile for modules with multi-profile support.
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Select-AzProfile hybrid-2019
 ```
 
-{{ Add example description here }}
+Select the 'hybrid-2019' profile.  This will cause any currently loaded module swith multi-profile support to be reloaded using 
+cmdlet exports from the 'nybrid-2019' profile.  All subsequently imported modules will also export cmdlets corresponding with this profile.
 
 ## PARAMETERS
 
 ### -Name
-{{Fill Name Description}}
+Name of the profile to select.
 
 ```yaml
 Type: String
@@ -62,8 +63,7 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+Shows changes that would occur if the cmdlet were executed, without making any of these changes.
 
 ```yaml
 Type: SwitchParameter
