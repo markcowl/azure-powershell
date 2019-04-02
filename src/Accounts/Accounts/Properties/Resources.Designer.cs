@@ -502,6 +502,15 @@ namespace Microsoft.Azure.Commands.Profile.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one context matches the given parameters.  Please make sure that you select both a subscription and an account for this context.
+        /// </summary>
+        internal static string MoreThanOneContext {
+            get {
+                return ResourceManager.GetString("MoreThanOneContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please ensure that the managed service identity found on this machine has proper permissions to the provided tenant domain..
         /// </summary>
         internal static string MSITenantDomainNotFound {
@@ -516,6 +525,15 @@ namespace Microsoft.Azure.Commands.Profile.Properties {
         internal static string NoAccountProvided {
             get {
                 return ResourceManager.GetString("NoAccountProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find a context using those parameters..
+        /// </summary>
+        internal static string NoMatchingContext {
+            get {
+                return ResourceManager.GetString("NoMatchingContext", resourceCulture);
             }
         }
         

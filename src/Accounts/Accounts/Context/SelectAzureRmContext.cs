@@ -89,9 +89,17 @@ namespace Microsoft.Azure.Commands.Profile.Context
                     ?.Filter(nameof(Subscription), Subscription, MyInvocation.BoundParameters, nameof(Subscription), (pair) => pair.Value?.Subscription?.Name, pair2 => pair2.Value?.Subscription?.Id)
                     ?.Filter(nameof(Account), Account, MyInvocation.BoundParameters, nameof(Account), (pair) => pair.Value?.Account?.Id);
 
-                if (contexts.Count() == 1)
+                switch(contexts.Count())
                 {
-                    name = contexts.First().Key;
+                    case 0:
+                        WriteWarning(Resources.NoMatchingContext);
+                        break;
+                    case 1:
+                        name = contexts.First().Key;
+                        break;
+                    default:
+                        WriteWarning(Resources.MoreThanOneContext);
+                        break;
                 }
             }
 

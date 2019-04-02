@@ -450,4 +450,10 @@
   <data name="PasswordNotSupported" xml:space="preserve">
     <value>Username + Password authentication is not supported in PowerShell Core.  Please use device code authentication for interactive log in, or Service Principal authentication for script log in.</value>
   </data>
+  <data name="MoreThanOneContext" xml:space="preserve">
+    <value>More than one context matches the given parameters.  Please make sure that you select both a subscription and an account for this context</value>
+  </data>
+  <data name="NoMatchingContext" xml:space="preserve">
+    <value>Could not find a context using those parameters.</value>
+  </data>
 </root>
