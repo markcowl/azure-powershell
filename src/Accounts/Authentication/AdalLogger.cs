@@ -18,11 +18,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.Azure.Commands.Common.Authentication
 {
-    /// <summary>
-    /// Implements logging callback for ADAL - since only a single logger is allowed, allow
-    /// reporting logs to multiple logging mechanisms
-    /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
+                              /// <summary>
+                              /// Implements logging callback for ADAL - since only a single logger is allowed, allow
+                              /// reporting logs to multiple logging mechanisms
+                              /// </summary>
     public class AdalLogger : IAdalLogCallback, IDisposable
+#pragma warning restore CS0618 // Type or member is obsolete
     {
         Action<string> _logger;
 
@@ -71,10 +73,12 @@ namespace Microsoft.Azure.Commands.Common.Authentication
             _logger($"[ADAL]: {level}: {message}");
         }
 
-        /// <summary>
-        /// Central logging mechanism - allows registering multiple logging callbacks
-        /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
+                              /// <summary>
+                              /// Central logging mechanism - allows registering multiple logging callbacks
+                              /// </summary>
         class AdalCompositeLogger : IAdalLogCallback
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             static object _lockObject = new object();
             IList<AdalLogger> _loggers = new List<AdalLogger>();
