@@ -810,7 +810,7 @@ directive:
     remove: true
   - where:
       verb: Set
-      variant: ^Update\d?$|^UpdateViaIdentity\d?$
+      variant: ^UpdateViaIdentity\d?$
     remove: true
   - where:
       verb: Update
