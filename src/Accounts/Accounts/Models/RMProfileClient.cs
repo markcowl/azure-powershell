@@ -39,7 +39,7 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common
     {
         private IProfileOperations _profile;
         private IAzureTokenCache _cache;
-        public Action<string> WarningLog;
+        public Action<string> WarningLog = s => { };
 
         public RMProfileClient(IProfileOperations profile)
         {
@@ -327,15 +327,18 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common
             Guid subscriptionId;
             IAzureContext context = new AzureContext();
             context.CopyFrom(_profile.DefaultContext);
+            WarningLog($"[profile.SetCurrentContext]: subscription: '{subscriptionNameOrId}', tenantId: '{tenantId}'");
             if (!string.IsNullOrWhiteSpace(subscriptionNameOrId))
             {
                 if (Guid.TryParse(subscriptionNameOrId, out subscriptionId))
                 {
                     TryGetSubscriptionById(tenantId, subscriptionNameOrId, out subscription);
+                    WarningLog($"[profile.SetCurrentContext]: result of subscription By Id: '{subscription?.Id}'");
                 }
                 else
                 {
                     TryGetSubscriptionByName(tenantId, subscriptionNameOrId, out subscription);
+                    WarningLog($"[profile.SetCurrentContext]: result of subscription By Name: '{subscription?.Id}'");
                 }
 
                 if (subscription == null)
@@ -348,6 +351,7 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common
             else if (!string.IsNullOrWhiteSpace(tenantId))
             {
                 subscription = GetFirstSubscription(tenantId);
+                WarningLog($"[profile.SetCurrentContext]: subscription not found, using first in tenant: '{subscription?.Id}'");
                 tenant = CreateTenant(tenantId);
             }
             else
@@ -356,7 +360,17 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common
             }
 
             context.WithTenant(tenant).WithSubscription(subscription);
-            _profile.TrySetDefaultContext(name, context);
+            WarningLog($"[profile.SetCurrentContext]: result of context change, subscriptionId: '{context?.Subscription?.Id}'");
+            if (_profile.TrySetDefaultContext(name, context))
+            {
+                WarningLog($"[profile.SetCurrentContext]: successfully set context, subscriptionId: '{subscription?.Id}'");
+
+            }
+            else
+            {
+                WarningLog($"[profile.SetCurrentContext]: failed to set context, subscriptionId: '{subscription?.Id}'");
+
+            }
             _profile.DefaultContext.ExtendedProperties.Clear();
             return context;
         }
@@ -383,6 +397,8 @@ namespace Microsoft.Azure.Commands.ResourceManager.Common
             {
                 IEnumerable<IAzureSubscription> subscriptionList = ListSubscriptions(tenantId);
                 subscription = subscriptionList.FirstOrDefault(s => s.GetId() == subscriptionIdGuid);
+                WarningLog($"[profile.SetCurrentContext]: checking subscription set, subscriptionId: '{subscription?.Id}'");
+
             }
             return subscription != null;
         }

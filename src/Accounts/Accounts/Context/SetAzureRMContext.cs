@@ -112,13 +112,16 @@ namespace Microsoft.Azure.Commands.Profile
             else
             {
                 var subscriptionId = Subscription ?? SubscriptionObject?.Id ?? SubscriptionObject?.Name;
+                WriteDebug($"[Set-AzContext]: Setting subscription using subscrition id '{subscriptionId}', Current Subscription '{DefaultContext?.Subscription?.Id}'");
                 if (DefaultContext != null && !string.IsNullOrWhiteSpace(subscriptionId))
                 {
                     if (ShouldProcess(string.Format(Resources.ChangingContextSubscription, subscriptionId),
                            Resources.SubscriptionChangeWarning, string.Empty))
                     {
+                        WriteDebug($"[Set-AzContext]: Chaning subscription from '{DefaultContext?.Subscription?.Id}' to '{subscriptionId}'");
                         SetContextWithOverwritePrompt((profile, client, name) =>
                         {
+                            client.WarningLog = WriteDebug;
                             client.SetCurrentContext(subscriptionId, Tenant, name);
                             CompleteContextProcessing(profile);
                         });
@@ -198,6 +201,10 @@ namespace Microsoft.Azure.Commands.Profile
                 string.Format(Resources.ReplaceContextCaption, name)))
             {
                 ModifyContext((prof, client) => setContextAction(prof, client, name));
+            }
+            else
+            {
+                WriteWarning($"Context not changed");
             }
         }
     }

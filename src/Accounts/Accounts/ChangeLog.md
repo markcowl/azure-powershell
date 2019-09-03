@@ -17,7 +17,8 @@
     * Overview of change #1
         - Additional information about change #1
 -->
-## Upcoming Release
+## Version 1.6.3
+* Add additional tracing
 
 ## Version 1.6.2
 * Fixed miscellaneous typos across module
