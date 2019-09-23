@@ -19,8 +19,8 @@ New-AzVM -Credential <PSCredential> -Name <String> [-AddressPrefix <String>] [-A
  [-Location <String>] [-OpenPort <Int32[]>] [-ProximityPlacementGroup <String>]
  [-PublicIpAddressName <String>] [-ResourceGroupName <String>] [-SecurityGroupName <String>] [-Size <String>]
  [-SubnetAddressPrefix <String>] [-SubnetName <String>] [-SubscriptionId <String>] [-SystemAssignedIdentity]
- [-Tag <Hashtable>] [-UserAssignedIdentity <String>] [-VirtualNetworkName <String>] [-Zone <String[]>]
- [-Confirm] [-WhatIf] [<CommonParameters>]
+ [-Tag <Hashtable>] [-VirtualNetworkName <String>] [-Zone <String[]>] [-Confirm] [-WhatIf]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -405,22 +405,6 @@ Dynamic: False
 
 ```yaml
 Type: System.Collections.Hashtable
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-Dynamic: False
-```
-
-### -UserAssignedIdentity
-Use this to add the assign user specified identity (MSI) to the VM
-
-```yaml
-Type: System.String
 Parameter Sets: (All)
 Aliases:
 

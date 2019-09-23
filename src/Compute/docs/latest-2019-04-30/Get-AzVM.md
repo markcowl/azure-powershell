@@ -17,6 +17,13 @@ Retrieves information about the model view or the instance view of a virtual mac
 Get-AzVM [-SubscriptionId <String[]>] [-DefaultProfile <PSObject>] [<CommonParameters>]
 ```
 
+### List5 (Default)
+```
+Get-AzVM -Status [-InputObject <IComputeIdentity>] [-Location <String>] [-Name <String>]
+ [-ResourceGroupName <String>] [-SubscriptionId <String[]>] [-Expand <InstanceViewTypes>]
+ [-DefaultProfile <PSObject>] [<CommonParameters>]
+```
+
 ### Get1
 ```
 Get-AzVM -Name <String> -ResourceGroupName <String> [-SubscriptionId <String[]>] [-Expand <InstanceViewTypes>]
@@ -86,7 +93,7 @@ The expand expression to apply on the operation.
 
 ```yaml
 Type: Microsoft.Azure.PowerShell.Cmdlets.Compute.Support.InstanceViewTypes
-Parameter Sets: Get1, GetViaIdentity1
+Parameter Sets: Get1, GetViaIdentity1, List5
 Aliases:
 
 Required: False
@@ -103,7 +110,7 @@ To construct, see NOTES section for INPUTOBJECT properties and create a hash tab
 
 ```yaml
 Type: Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.IComputeIdentity
-Parameter Sets: GetViaIdentity1
+Parameter Sets: GetViaIdentity1, List5
 Aliases:
 
 Required: True
@@ -119,7 +126,7 @@ The location for which virtual machines under the subscription are queried.
 
 ```yaml
 Type: System.String
-Parameter Sets: List3
+Parameter Sets: List3, List5
 Aliases:
 
 Required: True
@@ -135,7 +142,7 @@ The name of the virtual machine.
 
 ```yaml
 Type: System.String
-Parameter Sets: Get1
+Parameter Sets: Get1, List5
 Aliases:
 
 Required: True
@@ -151,7 +158,23 @@ The name of the resource group.
 
 ```yaml
 Type: System.String
-Parameter Sets: Get1, List4
+Parameter Sets: Get1, List4, List5
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+Dynamic: False
+```
+
+### -Status
+Include VM running status details
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: List5
 Aliases:
 
 Required: True
@@ -168,7 +191,7 @@ The subscription ID forms part of the URI for every service call.
 
 ```yaml
 Type: System.String[]
-Parameter Sets: Get1, List3, List4, List5
+Parameter Sets: Get1, List3, List4, List5, List5
 Aliases:
 
 Required: False

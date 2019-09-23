@@ -14,22 +14,21 @@ schema: 2.0.0
 
 ### DefaultParameter (Default)
 ```
-New-AzVmss -VMScaleSetName <String> [-AsJob] [-DefaultProfile <IAzureContextContainer>]
- [-SubscriptionId <String>] [-Confirm] [-WhatIf] [<CommonParameters>]
+New-AzVmss -Name <String> [-AsJob] [-DefaultProfile <IAzureContextContainer>] [-SubscriptionId <String>]
+ [-Confirm] [-WhatIf] [<CommonParameters>]
 ```
 
 ### SimpleParameterSet
 ```
-New-AzVmss -Credential <PSCredential> -VMScaleSetName <String> [-AllocationMethod <String>] [-AsJob]
+New-AzVmss -Credential <PSCredential> -Name <String> [-AllocationMethod <String>] [-AsJob]
  [-BackendPoolName <String>] [-BackendPort <Int32[]>] [-DataDiskSizeInGb <Int32[]>]
  [-DefaultProfile <IAzureContextContainer>] [-DomainNameLabel <String>] [-EnableUltraSSD]
  [-FrontendPoolName <String>] [-InstanceCount <Int32>] [-LoadBalancerName <String>] [-Location <String>]
  [-NatBackendPort <Int32[]>] [-ProximityPlacementGroup <String>] [-PublicIpAddressName <String>]
  [-ResourceGroupName <String>] [-SecurityGroupName <String>] [-SinglePlacementGroup]
  [-SubnetAddressPrefix <String>] [-SubnetName <String>] [-SubscriptionId <String>] [-SystemAssignedIdentity]
- [-UpgradePolicyMode <UpgradeMode>] [-UserAssignedIdentity <String>] [-VirtualNetworkName <String>]
- [-VmSize <String>] [-VnetAddressPrefix <String>] [-Zone <List<String>>] [-Confirm] [-WhatIf]
- [<CommonParameters>]
+ [-UpgradePolicyMode <UpgradeMode>] [-VirtualNetworkName <String>] [-VmSize <String>]
+ [-VnetAddressPrefix <String>] [-Zone <String[]>] [-Confirm] [-WhatIf] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -265,6 +264,22 @@ Accept wildcard characters: False
 Dynamic: False
 ```
 
+### -Name
+
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases: VMScaleSetName
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+Dynamic: False
+```
+
 ### -NatBackendPort
 
 
@@ -441,22 +456,6 @@ Accept wildcard characters: False
 Dynamic: False
 ```
 
-### -UserAssignedIdentity
-Use this to add the assign user specified identity (MSI) to the VM
-
-```yaml
-Type: System.String
-Parameter Sets: SimpleParameterSet
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-Dynamic: False
-```
-
 ### -VirtualNetworkName
 
 
@@ -466,22 +465,6 @@ Parameter Sets: SimpleParameterSet
 Aliases:
 
 Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-Dynamic: False
-```
-
-### -VMScaleSetName
-
-
-```yaml
-Type: System.String
-Parameter Sets: (All)
-Aliases: Name
-
-Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -525,14 +508,14 @@ Dynamic: False
 A list of availability zones denoting the IP allocated for the resource needs to come from.
 
 ```yaml
-Type: System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]
+Type: System.String[]
 Parameter Sets: SimpleParameterSet
 Aliases:
 
 Required: False
 Position: Named
 Default value: None
-Accept pipeline input: True (ByPropertyName)
+Accept pipeline input: False
 Accept wildcard characters: False
 Dynamic: False
 ```
@@ -574,8 +557,6 @@ Dynamic: False
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
-
-### System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]
 
 ## OUTPUTS
 
