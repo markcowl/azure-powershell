@@ -36,6 +36,7 @@ using System.Management.Automation;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Commands.Storage.Blob.Cmdlet;
 
 namespace Microsoft.WindowsAzure.Commands.Storage.Common
 {
@@ -121,9 +122,12 @@ namespace Microsoft.WindowsAzure.Commands.Storage.Common
 
         protected override void ProcessRecord()
         {
-            Validate.ValidateInternetConnection();
-            InitChannelCurrentSubscription();
-            base.ProcessRecord();
+            using (var logger = new StorageLoggingHelpers(this as GetAzureStorageContainerCommand))
+            {
+                Validate.ValidateInternetConnection();
+                InitChannelCurrentSubscription();
+                base.ProcessRecord();
+            }
         }
 
 

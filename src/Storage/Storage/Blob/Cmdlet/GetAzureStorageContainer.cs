@@ -24,6 +24,7 @@ namespace Microsoft.WindowsAzure.Commands.Storage.Blob.Cmdlet
     using System.Management.Automation;
     using System.Security.Permissions;
     using System.Threading.Tasks;
+    using System.Collections.Concurrent;
 
     /// <summary>
     /// List azure storage container
@@ -41,6 +42,8 @@ namespace Microsoft.WindowsAzure.Commands.Storage.Blob.Cmdlet
         /// Prefix parameter set name
         /// </summary>
         private const string PrefixParameterSet = "ContainerPrefix";
+
+        public ConcurrentQueue<string> Queue { get; set; } = new ConcurrentQueue<string>();
 
         [Alias("N", "Container")]
         [Parameter(Position = 0, HelpMessage = "Container Name",
@@ -101,6 +104,7 @@ namespace Microsoft.WindowsAzure.Commands.Storage.Blob.Cmdlet
         /// <returns>An enumerable collection of cloudblob container</returns>
         internal IEnumerable<Tuple<CloudBlobContainer, BlobContinuationToken>> ListContainersByName(string name)
         {
+           
             string prefix = string.Empty;
             BlobRequestOptions requestOptions = RequestOptions;
             AccessCondition accessCondition = null;
@@ -177,6 +181,8 @@ namespace Microsoft.WindowsAzure.Commands.Storage.Blob.Cmdlet
 
                 foreach (CloudBlobContainer container in containerResult.Results)
                 {
+                    var client = AzureStorageContainer.GetTrack2BlobContainerClient(container, (AzureStorageContext)this.Context, this);
+                    var properties = client.GetProperties();
                     if (containerFilter == null || containerFilter(container))
                     {
                         yield return new Tuple<CloudBlobContainer, BlobContinuationToken>(container, containerResult.ContinuationToken);
@@ -268,6 +274,17 @@ namespace Microsoft.WindowsAzure.Commands.Storage.Blob.Cmdlet
             }
 
             PackCloudBlobContainerWithAcl(containerList);
+        }
+
+        protected override void EndProcessing()
+        {
+            base.EndProcessing();
+            string message;
+            while (Queue.TryDequeue(out message))
+            {
+                WriteWarning(message);
+            }
+
         }
     }
 }
