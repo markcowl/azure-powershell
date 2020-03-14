@@ -43,6 +43,21 @@ namespace Microsoft.Azure.Commands.Common.Authentication.Factories
         private ReaderWriterLockSlim _handlersLock;
         private ConcurrentDictionary<ProductInfoHeaderValue, string> _userAgents { get; set; }
 
+        class No429ErrorDetectionStrategy : Microsoft.Rest.TransientFaultHandling.ITransientErrorDetectionStrategy
+        {
+            Microsoft.Rest.TransientFaultHandling.HttpStatusCodeErrorDetectionStrategy _wrappedStrategy = new Rest.TransientFaultHandling.HttpStatusCodeErrorDetectionStrategy();
+            public bool IsTransient(Exception ex)
+            {
+                return _wrappedStrategy.IsTransient(ex) && !IsThrottlingError(ex);
+            }
+
+            bool IsThrottlingError(Exception ex)
+            {
+                var httpException = ex as Microsoft.Rest.TransientFaultHandling.HttpRequestWithStatusException;
+                return httpException != null && httpException.StatusCode == ((HttpStatusCode)429);
+            }
+        }
+
         public ClientFactory()
         {
             _actions = new Dictionary<Type, IClientAction>();
@@ -117,6 +132,28 @@ namespace Microsoft.Azure.Commands.Common.Authentication.Factories
             foreach (ProductInfoHeaderValue userAgent in _userAgents.Keys)
             {
                 client.UserAgent.Add(userAgent);
+            }
+
+            // remove retries on 429
+            var retryHandler = client.HttpMessageHandlers.Where(h => h is Microsoft.Rest.RetryDelegatingHandler).FirstOrDefault() as Microsoft.Rest.RetryDelegatingHandler;
+            var policy = retryHandler?.RetryPolicy;
+            if (policy != null)
+            {
+                client.SetRetryPolicy(new Rest.TransientFaultHandling.RetryPolicy<No429ErrorDetectionStrategy>(policy.RetryStrategy));
+            }
+
+            var previous = client.HttpMessageHandlers.FirstOrDefault() as DelegatingHandler;
+            var current = previous?.InnerHandler as DelegatingHandler;
+            while (current != null)
+            {
+                if (current is Rest.RetryAfterDelegatingHandler)
+                {
+                    previous.InnerHandler = current?.InnerHandler;
+                    break;
+                }
+
+                previous = current;
+                current = current.InnerHandler as DelegatingHandler;
             }
 
             return client;

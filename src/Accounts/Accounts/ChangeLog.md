@@ -17,8 +17,9 @@
     * Overview of change #1
         - Additional information about change #1
 -->
-## Upcoming Release
+## Version 1.7.4
 * Fix Get-AzTenant/Get-AzDefault/Set-AzDefault throw NullReferenceException when not login
+* Stop retries on 429 response status codes
 
 ## Version 1.7.3
 * Open Azure PowerShell survey page in `Send-Feedback` [#11020]
