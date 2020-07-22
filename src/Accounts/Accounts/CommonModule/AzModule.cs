@@ -137,7 +137,7 @@ namespace Microsoft.Azure.Commands.Common
                 }
 
                 /// Print formatted response message
-                await signal(Events.Debug, cancellationToken,
+                await signal(Events.Verbose, cancellationToken,
                     () => EventHelper.CreateLogEvent(GeneralUtilities.GetLog(response)));
             }
         }
@@ -145,12 +145,12 @@ namespace Microsoft.Azure.Commands.Common
         internal async Task OnCmdletException(string id, CancellationToken cancellationToken, GetEventData getEventData, SignalDelegate signal, string processRecordId, Exception exception)
         {
             var data = EventDataConverter.ConvertFrom(getEventData());
-            await signal(Events.Debug, cancellationToken,
+            await signal(Events.Verbose, cancellationToken,
                 () => EventHelper.CreateLogEvent($"[{id}]: Received Exception with message '{data?.Message}'"));
             AzurePSQoSEvent qos;
             if (_telemetry.TryGetValue(processRecordId, out qos))
             {
-                await signal(Events.Debug, cancellationToken,
+                await signal(Events.Verbose, cancellationToken,
                     () => EventHelper.CreateLogEvent($"[{id}]: Sending new QosEvent for command '{qos.CommandName}': {qos.ToString()}"));
                 qos.IsSuccess = false;
                 qos.Exception = exception;
@@ -161,7 +161,7 @@ namespace Microsoft.Azure.Commands.Common
         internal async Task OnProcessRecordAsyncStart(string id, CancellationToken cancellationToken, GetEventData getEventData, SignalDelegate signal, string processRecordId, InvocationInfo invocationInfo, string parameterSetName, string correlationId)
         {
             var qos = _telemetry.CreateQosEvent(invocationInfo, parameterSetName, correlationId, processRecordId);
-            await signal(Events.Debug, cancellationToken,
+            await signal(Events.Verbose, cancellationToken,
                 () => EventHelper.CreateLogEvent($"[{id}]: Created new QosEvent for command '{qos?.CommandName}': {qos?.ToString()}"));
         }
 
@@ -171,7 +171,7 @@ namespace Microsoft.Azure.Commands.Common
             if (_telemetry.TryGetValue(processRecordId, out qos))
             {
                 qos.IsSuccess = qos.Exception == null;
-                await signal(Events.Debug, cancellationToken,
+                await signal(Events.Verbose, cancellationToken,
                     () => EventHelper.CreateLogEvent($"[{id}]: Sending new QosEvent for command '{qos.CommandName}': {qos.ToString()}"));
                 _telemetry.LogEvent(processRecordId);
             }
@@ -198,7 +198,7 @@ namespace Microsoft.Azure.Commands.Common
                 }
 
                 /// Print formatted request message
-                await signal(Events.Debug, cancellationToken,
+                await signal(Events.Verbose, cancellationToken,
                     () => EventHelper.CreateLogEvent(GeneralUtilities.GetLog(request)));
             }
         }

@@ -50,7 +50,7 @@ namespace Microsoft.Azure.Commands.Common
         {
             return new EventData
             {
-                Id = Events.Debug,
+                Id = Events.Verbose,
                 Message = message
             };
         }
